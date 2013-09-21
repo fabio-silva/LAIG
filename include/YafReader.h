@@ -16,7 +16,6 @@ protected:
 
 	TiXmlDocument* yafDocument;
 	
-	TiXmlElement* yafElement;
 	TiXmlElement* globalsElement;
 	TiXmlElement* camerasElement;
 	TiXmlElement* lightingElement;
