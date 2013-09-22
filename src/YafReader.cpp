@@ -572,6 +572,75 @@ YafReader::YafReader(char* filename)
 			cout << "File : " << textFile << endl;
 		}
 	}
+
+	//Appearances tag
+
+	cout << endl<< "---------------------------------------" <<endl<< "Processing Appearance block!" << endl;
+
+	if(appearancesElement == NULL)
+	{
+		cout << "Appearance block element not found!Exiting" << endl;
+		exit(1);
+	}
+
+	else
+	{
+		TiXmlElement* appElement = appearancesElement->FirstChildElement("appearance");
+
+		
+		for(int i = 1; appElement != NULL; appElement = appElement->NextSiblingElement(), i++)
+		{
+			char *id = NULL;
+			char *emissive = NULL, *ambient = NULL, *diffuse = NULL, *specular = NULL;
+			char *shininess = NULL, *textureref = NULL, *texlength_s = NULL, *texlength_t = NULL;
+
+			float emA ,emB, emC, emD;
+			float ambR, ambG, ambB, ambAlpha;
+			float difA, difB, difC, difD;
+			float specA, specB, specC, specD;
+			float shin;
+			float textRef, textL_S, textL_T;
+
+			id = (char *)appElement->Attribute("id");
+
+			cout <<endl << endl << "Processing texture number " << i << ", id = " << id << endl;
+			emissive = (char *)appElement->Attribute("emissive");
+			ambient = (char *)appElement->Attribute("ambient");
+			diffuse = (char *)appElement->Attribute("diffuse");
+			specular = (char *)appElement->Attribute("specular");
+			shininess = (char *)appElement->Attribute("shininess");
+			textureref = (char *)appElement->Attribute("textureref");
+			texlength_s = (char *)appElement->Attribute("texlength_s");
+			texlength_t = (char *)appElement->Attribute("texlength_t");
+
+
+			if(emissive && sscanf(emissive,"%f %f %f %f",&emA, &emB, &emC, &emD) == 4) 
+				cout << "Emissive values: " << emA << " " << emB << " " << emC << " " << emD << endl;
+
+			if(ambient && sscanf(ambient,"%f %f %f %f",&ambR, &ambG, &ambB, &ambAlpha) == 4) 
+				cout << "Ambient values: " << ambR << " " << ambG << " " << ambB << " " << ambAlpha << endl;
+
+			if(diffuse && sscanf(diffuse,"%f %f %f %f",&difA, &difB, &difC, &difD) == 4) 
+				cout << "Diffuse values: " << difA << " " << difB << " " << difC << " " << difD << endl;
+
+			if(specular && sscanf(specular,"%f %f %f %f",&specA, &specB, &specC, &specD) == 4) 
+				cout << "Specular values: " << specA << " " << specB << " " << specC << " " << specD << endl;
+
+			if(shininess && sscanf(shininess,"%f",&shin) == 1) 
+				cout << "Shininess values: " <<shin << endl;
+
+			textureref = (char *)appElement -> Attribute("textureref");
+
+			if(textureref != NULL) cout << "Texture reference: " << textureref << endl;
+
+			if(texlength_s && sscanf(texlength_s,"%f",&textL_S) == 1) 
+				cout << "Length_s value: " <<texlength_s << endl;
+			
+			if(texlength_t && sscanf(texlength_t,"%f",&textL_T) == 1) 
+				cout << "Length_t value: " <<texlength_t << endl;
+
+		}
+	}
 }
 
 YafReader::~YafReader()
