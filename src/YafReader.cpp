@@ -549,4 +549,32 @@ YafReader::YafReader(char* filename)
 	}
 
 	//Textures tag processing
+
+	cout << endl<< "---------------------------------------" <<endl<< "Processing Textures block!" << endl;
+	if(texturesElement == NULL)
+	{
+		cout << "Textures block element not found!Exiting" << endl;
+		exit(1);
+	}
+
+	else
+	{
+		TiXmlElement* textElement = texturesElement->FirstChildElement("texture");
+
+		for(int i = 1; textElement != NULL ; i++, textElement = textElement->NextSiblingElement())
+		{
+			cout << "Processing texture number " << i << endl;
+			char *id = (char *)textElement->Attribute("id");
+			char *textFile = (char *)textElement->Attribute("file");
+
+			cout << "Textures id: " << id << endl;
+
+			cout << "File : " << textFile << endl;
+		}
+	}
+}
+
+YafReader::~YafReader()
+{
+	delete(yafDocument);
 }
