@@ -556,7 +556,6 @@ YafReader::YafReader(char* filename)
 		cout << "Textures block element not found!Exiting" << endl;
 		exit(1);
 	}
-
 	else
 	{
 		TiXmlElement* textElement = texturesElement->FirstChildElement("texture");
@@ -573,7 +572,7 @@ YafReader::YafReader(char* filename)
 		}
 	}
 
-	//Appearances tag
+	//Appearances tag processing
 
 	cout << endl<< "---------------------------------------" <<endl<< "Processing Appearance block!" << endl;
 
@@ -582,12 +581,10 @@ YafReader::YafReader(char* filename)
 		cout << "Appearance block element not found!Exiting" << endl;
 		exit(1);
 	}
-
 	else
 	{
 		TiXmlElement* appElement = appearancesElement->FirstChildElement("appearance");
 
-		
 		for(int i = 1; appElement != NULL; appElement = appElement->NextSiblingElement(), i++)
 		{
 			char *id = NULL;
@@ -635,12 +632,362 @@ YafReader::YafReader(char* filename)
 
 			if(texlength_s && sscanf(texlength_s,"%f",&textL_S) == 1) 
 				cout << "Length_s value: " <<texlength_s << endl;
-			
+
 			if(texlength_t && sscanf(texlength_t,"%f",&textL_T) == 1) 
 				cout << "Length_t value: " <<texlength_t << endl;
 
 		}
 	}
+
+	//Graph tag processing
+
+	cout << endl<< "---------------------------------------" << endl;
+	cout << "Processing Graph block!" << endl;
+
+	if (graphElement == NULL)
+	{
+		cout << "Graph block element not found!Exiting" << endl;
+		//exit(1);
+	}
+	else
+	{
+		char *rootId = NULL;
+
+		rootId = (char *) graphElement->Attribute("rootid");
+
+		cout << "Root id: " << rootId << endl;
+
+		int i = 1;
+		TiXmlElement* nodeElement = graphElement->FirstChildElement("node");
+
+		//Node tags processing
+
+		while(nodeElement)
+		{
+			char *nodeId = NULL;
+
+			nodeId = (char *) nodeElement->Attribute("id");
+
+			cout << "Processing Node number " << i << " id: " << nodeId << endl << endl;
+
+			//Children tags(transforms, appearances, primitives, etc.) processing
+
+			TiXmlElement* childrenElemenent = nodeElement->FirstChildElement("transforms");
+
+			if (childrenElemenent == NULL)
+			{
+				cout << "Failed to find transforms tag!Exiting!" << endl;
+				//exit(1);
+			}
+			else
+			{
+				while(childrenElemenent)
+				{
+					if (strcmp(childrenElemenent->Value(), "transforms") == 0)
+					{
+						cout << "Processing the Transformations!" << endl << endl;
+
+						//check which one is the first transform tag to appear and then process each transformation in the following while loop
+
+						TiXmlElement* transformTypeElement = childrenElemenent->FirstChildElement();
+
+						while(transformTypeElement)
+						{
+							if (strcmp(transformTypeElement->Value(),"translate") == 0)
+							{
+								char *translate = NULL;
+								float translateX, translateY, translateZ;
+
+								translate = (char *) transformTypeElement->Attribute("to");
+
+								if(translate && sscanf(translate,"%f %f %f",&translateX, &translateY, &translateZ) == 3) 
+								{
+									cout << "Translate values: " << translateX << " " << translateY << " " << translateZ << endl;
+								}
+							}
+
+							if (strcmp(transformTypeElement->Value(),"rotate") == 0)
+							{
+								char *axis = NULL;
+								float angle;
+
+								axis = (char *) transformTypeElement->Attribute("axis");
+
+								if ((strcmp(axis,"x") != 0) && (strcmp(axis,"y") != 0) && (strcmp(axis,"z") != 0))
+								{
+									cout << "Invalid input on the axis field!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (transformTypeElement->QueryFloatAttribute("angle",&angle) == TIXML_SUCCESS)
+								{
+									cout << "Rotate Angle value: " << angle << endl;
+								}
+								else
+								{
+									cout << "Error processing the Rotate Angle value!Exiting!" << endl;
+									//exit(1);
+								}
+							}
+
+							if (strcmp(transformTypeElement->Value(),"scale") == 0)
+							{
+								char *scale = NULL;
+								float scaleX, scaleY, scaleZ;
+
+								scale = (char *) transformTypeElement->Attribute("factor");
+
+								if(scale && sscanf(scale,"%f %f %f",&scaleX, &scaleY, &scaleZ) == 3) 
+								{
+									cout << "Scale values: " << scaleX << " " << scaleY << " " << scaleZ << endl;
+								}
+							}
+
+							transformTypeElement = transformTypeElement->NextSiblingElement();
+						}
+					}
+
+					if (strcmp(childrenElemenent->Value(),"appearanceref") == 0)
+					{
+						cout <<endl << "Processing the Appearance!" << endl << endl;
+
+						char *id = NULL;
+
+						id = (char *) childrenElemenent->Attribute("id");
+
+						cout << "Appearance id: " << id << endl;
+					}
+
+					if (strcmp(childrenElemenent->Value(),"children") == 0)
+					{
+						cout <<endl << "Processing the Children!" << endl;
+
+						TiXmlElement* childrenTypeElement = childrenElemenent->FirstChildElement();
+
+						//Process each children child (all the several primitives and the noderefs) in the following while loop
+
+						while(childrenTypeElement)
+						{
+							if (strcmp(childrenTypeElement->Value(),"rectangle") == 0)
+							{
+								cout << endl << "Rectangle tag!" << endl;
+
+								char *xy1 = NULL, *xy2 = NULL;
+								float xy1X, xy1Y, xy2X, xy2Y;
+
+								xy1 = (char *) childrenTypeElement->Attribute("xy1");
+
+								if(xy1 && sscanf(xy1,"%f %f",&xy1X, &xy1Y) == 2) 
+								{
+									cout << "Xy1 values: " << xy1X << " " << xy1Y << endl;
+								}
+
+								xy2 = (char *) childrenTypeElement->Attribute("xy2");
+
+								if(xy2 && sscanf(xy2,"%f %f",&xy2X, &xy2Y) == 2) 
+								{
+									cout << "Xy2 values: " << xy2X << " " << xy2Y << endl;
+								}
+							}
+
+							if (strcmp(childrenTypeElement->Value(),"triangle") == 0)
+							{
+								cout << endl << "Triangle tag!" << endl;
+
+								char *xyz1 = NULL, *xyz2 = NULL, *xyz3 = NULL;
+								float xyz1X, xyz1Y, xyz1Z, xyz2X, xyz2Y, xyz2Z, xyz3X, xyz3Y, xyz3Z;
+
+								xyz1 = (char *) childrenTypeElement->Attribute("xyz1");
+
+								if(xyz1 && sscanf(xyz1,"%f %f %f",&xyz1X, &xyz1Y, &xyz1Z) == 3) 
+								{
+									cout << "Xyz1 values: " << xyz1X << " " << xyz1Y << " " << xyz1Z << endl;
+								}
+
+								xyz2 = (char *) childrenTypeElement->Attribute("xyz2");
+
+								if(xyz2 && sscanf(xyz2,"%f %f %f",&xyz2X, &xyz2Y, &xyz2Z) == 3) 
+								{
+									cout << "Xyz2 values: " << xyz2X << " " << xyz2Y << " " << xyz2Z << endl;
+								}
+
+								xyz3 = (char *) childrenTypeElement->Attribute("xyz3");
+
+								if(xyz3 && sscanf(xyz3,"%f %f %f",&xyz3X, &xyz3Y, &xyz3Z) == 3) 
+								{
+									cout << "Xyz3 values: " << xyz3X << " " << xyz3Y << " " << xyz3Z << endl;
+								}
+							}
+
+							if (strcmp(childrenTypeElement->Value(),"cylinder") == 0)
+							{
+								cout << endl << "Cylinder tag!" << endl;
+
+								float base, top, height;
+								int slices, stacks;
+
+								if (childrenTypeElement->QueryFloatAttribute("base",&base) == TIXML_SUCCESS)
+								{
+									cout << "Cylinder Base value: " << base << endl;
+								}
+								else
+								{
+									cout << "Error processing the Cylinder Base value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryFloatAttribute("top",&top) == TIXML_SUCCESS)
+								{
+									cout << "Cylinder Top value: " << top << endl;
+								}
+								else
+								{
+									cout << "Error processing the Cylinder Top value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryFloatAttribute("height",&height) == TIXML_SUCCESS)
+								{
+									cout << "Cylinder Height value: " << height << endl;
+								}
+								else
+								{
+									cout << "Error processing the Cylinder Height value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryIntAttribute("slices",&slices) == TIXML_SUCCESS)
+								{
+									cout << "Cylinder Slices value: " << slices << endl;
+								}
+								else
+								{
+									cout << "Error processing the Cylinder Slices value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryIntAttribute("stacks",&stacks) == TIXML_SUCCESS)
+								{
+									cout << "Cylinder Stacks value: " << stacks << endl;
+								}
+								else
+								{
+									cout << "Error processing the Cylinder Stacks value!Exiting!" << endl;
+									//exit(1);
+								}
+							}
+
+							if (strcmp(childrenTypeElement->Value(),"sphere") == 0)
+							{
+								cout << endl << "Sphere tag!" << endl;
+
+								float radius;
+								int slices, stacks;
+
+								if (childrenTypeElement->QueryFloatAttribute("radius",&radius) == TIXML_SUCCESS)
+								{
+									cout << "Sphere Radius value: " << radius << endl;
+								}
+								else
+								{
+									cout << "Error processing the Sphere Radius value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryIntAttribute("slices",&slices) == TIXML_SUCCESS)
+								{
+									cout << "Sphere Slices value: " << slices << endl;
+								}
+								else
+								{
+									cout << "Error processing the Sphere Slices value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryIntAttribute("stacks",&stacks) == TIXML_SUCCESS)
+								{
+									cout << "Sphere Stacks value: " << stacks << endl;
+								}
+								else
+								{
+									cout << "Error processing the Sphere Stacks value!Exiting!" << endl;
+									//exit(1);
+								}
+							}
+
+							if (strcmp(childrenTypeElement->Value(),"torus") == 0)
+							{
+								cout << endl << "Torus tag!" << endl;
+
+								float inner, outer;
+								int slices, loops;
+
+								if (childrenTypeElement->QueryFloatAttribute("inner",&inner) == TIXML_SUCCESS)
+								{
+									cout << "Torus Inner value: " << inner << endl;
+								}
+								else
+								{
+									cout << "Error processing the Torus Inner value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryFloatAttribute("outer",&outer) == TIXML_SUCCESS)
+								{
+									cout << "Torus Outer value: " << outer << endl;
+								}
+								else
+								{
+									cout << "Error processing the Torus Outer value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryIntAttribute("slices",&slices) == TIXML_SUCCESS)
+								{
+									cout << "Torus Slices value: " << slices << endl;
+								}
+								else
+								{
+									cout << "Error processing the Torus Slices value!Exiting!" << endl;
+									//exit(1);
+								}
+
+								if (childrenTypeElement->QueryIntAttribute("loops",&loops) == TIXML_SUCCESS)
+								{
+									cout << "Torus Loops value: " << loops << endl;
+								}
+								else
+								{
+									cout << "Error processing the Torus Loops value!Exiting!" << endl;
+									//exit(1);
+								}
+							}
+
+							if (strcmp(childrenTypeElement->Value(),"noderef") == 0)
+							{
+								cout << endl << "Noderef tag!" << endl;
+
+								char *id = NULL;
+
+								id = (char *) childrenTypeElement->Attribute("id");
+
+								cout << "Noderef id: " << id << endl;
+							}
+
+							childrenTypeElement = childrenTypeElement->NextSiblingElement();
+						}
+					}
+
+					childrenElemenent = childrenElemenent->NextSiblingElement();
+				}
+			}
+
+			i++;
+			nodeElement = nodeElement->NextSiblingElement();
+		}
+	}
+
+	cout << endl << "Terminated parsing the .yaf file!" << endl << "Press Enter key to exit..";
 }
 
 YafReader::~YafReader()
