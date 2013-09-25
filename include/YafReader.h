@@ -1,9 +1,11 @@
-#pragma once
+#ifndef YAF_READER_H
+#define YAF_READER_H
 
 #include "tinyxml.h"
 #include <iostream>
 #include <string>
-
+#include "Grafo.h"
+#include "Cena.h"
 using namespace std;
 
 class YafReader
@@ -11,9 +13,10 @@ class YafReader
 public:
 
 	YafReader(char* filename);
-
+	~YafReader();
 protected:
 
+	Cena scene;
 	TiXmlDocument* yafDocument;
 	
 	TiXmlElement* globalsElement;
@@ -22,4 +25,8 @@ protected:
 	TiXmlElement* texturesElement;
 	TiXmlElement* appearancesElement;
 	TiXmlElement* graphElement;
+
+	Grafo graph;
 };
+
+#endif

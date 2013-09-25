@@ -2,6 +2,8 @@
 
 YafReader::YafReader(char* filename)
 {
+
+
 	yafDocument = new TiXmlDocument(filename);
 
 	bool loadSuccessful = yafDocument->LoadFile();
@@ -68,6 +70,7 @@ YafReader::YafReader(char* filename)
 		cullorder  =(char *) globalsElement->Attribute("cullorder");
 		cout << "Cullorder value: " << cullorder << endl;
 
+		scene.setGlobals(backgroundR, backgroundG, backgroundB, backgroundAlpha, drawmode, shading, cullface, cullorder);
 	}
 
 	printf ("-----------------------------------------\n");
