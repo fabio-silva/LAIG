@@ -7,9 +7,10 @@ class Grafo{
 
 public:
 	Grafo();
-	void insertNode(Node n);
+	void insertNode(Node *n);
+	vector <Node *> getTree();
 
 protected:
-	vector<Node> tree;
+	vector<Node*> tree;
 };
 #endif

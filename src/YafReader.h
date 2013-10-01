@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include "Grafo.h"
+#include "Cena.h"
 using namespace std;
 
 class YafReader
@@ -13,9 +14,11 @@ public:
 
 	YafReader(char* filename);
 	~YafReader();
+	Cena scene;
 protected:
 
-TiXmlDocument* yafDocument;
+	
+	TiXmlDocument* yafDocument;
 	
 	TiXmlElement* globalsElement;
 	TiXmlElement* camerasElement;

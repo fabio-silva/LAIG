@@ -264,7 +264,7 @@ YafReader::YafReader(char* filename)
 	else
 	{
 		cout << "Processing Lighting block!" << endl;
-
+		
 		bool doublesided, local, enabled;
 		char* ambient = NULL, *ds = NULL, *l = NULL, *e = NULL;
 		float ambientR, ambientG, ambientB, ambientAlpha;
@@ -328,6 +328,7 @@ YafReader::YafReader(char* filename)
 		if(ambient && sscanf(ambient,"%f %f %f %f",&ambientR, &ambientG, &ambientB, &ambientAlpha) == 4)
 		{
 			cout << "Ambient values: " << ambientR << " " << ambientG << " " << ambientB << " " << ambientAlpha << endl;
+
 		}
 		else
 		{
@@ -335,6 +336,15 @@ YafReader::YafReader(char* filename)
 			//exit(1);
 		}
 
+		vector<float> ambience(4);
+		ambience.push_back(ambientR);
+		ambience.push_back(ambientG);
+		ambience.push_back(ambientB);
+		ambience.push_back(ambientAlpha);
+		Light *ambient_light = new Light(doublesided, local, enabled, ambience);
+		
+		scene.setAmbient(ambient_light);
+		
 		//Omni tags processing
 
 		int i = 1;

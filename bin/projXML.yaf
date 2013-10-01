@@ -12,55 +12,74 @@
     <!-- Valores para shading: "flat", "gouraud" ) --> 
     <!-- Valores para cullface: "none", "back" , "front" ou "both" --> 
     <!-- Valores para cullorder : "CCW" ou "CW" --> 
-    <globals background="0.1 0.2 0.3 0.4" drawmode="fill" shading="flat" cullface="back" cullorder="CW" /> 
+    <globals background="0 0 0 0" drawmode="fill" shading="gouraud" cullface="back" cullorder="CW" /> 
      
     <!-- bloco de camaras: o atributo "initial" identifica a camara/ponto de vista inicial --> 
-    <cameras initial="teste initial" > 
+    <cameras initial="1" > 
         <!-- tem de existir, pelo menos uma camara dos tipos seguintes (perspective ou ortho) --> 
 
-        <perspective id="1" near="0.2" far="2.0" angle="0.5" pos="3 2 5.5" target="5 0.5 7" />
-        <perspective id="2" near="0.3" far="4.0" angle="3.5" pos="4 5 9.5" target="2 1.5 3" />  
-        <ortho id="1" near="0.7" far="9.9" left="10" right="11" top="7" bottom="6" /> 
+        <perspective id="1" near="0.1" far="50" angle="45" pos="5 4 5" target="0 0 0" />
+        <perspective id="2" near="0.3" far="70" angle="90" pos="10 5 10" target="2 2 2" />  
+        <ortho id="3" near="-20" far="20" left="-20" right="20" top="20" bottom="-20" /> 
 
     </cameras> 
    
 
     <!-- bloco de iluminacao; segue os parametros do OpenGL --> 
-    <lighting doublesided="true" local="false" enabled="true" ambient="1 2 3.1 4.2" > 
+    <lighting doublesided="true" local="true" enabled="true" ambient="0.5 0.5 0.5 1" > 
              <!-- Deve existir pelo menos um dos seguintes blocos: omin ou spot --> 
             <!-- Os identificadores "id" nao podem ser repetidos --> 
             <omni id="1" enabled="true" 
-                location="2 3 4" 
-                ambient="55 14 78 3" 
-                diffuse="12 3 4 15" 
-                specular="17 4 7 9" 
+                location="8 6 8" 
+                ambient="0.5 0.5 0.5 1" 
+                diffuse="0.5 0.6 0.5 1" 
+                specular="0.2 0.2 0.2 1" 
             /> 
 
-            <spot id="1" enabled="false" 
-                location="5 6 7" 
-                ambient="0.9 2 1.4 6" 
-                diffuse="3 6.7 7.1 1" 
-                specular="5 0.7 4 3"
-                angle="2" 
-                exponent="6" 
-                direction="9 8 7" 
+            <spot id="1" enabled="true" 
+                location="0.25 6 10" 
+                ambient="1 1 1 1" 
+                diffuse="0.2 0.2 0.2 0.2" 
+                specular="0.3 0.3 0.3 0.5"
+                angle="45" 
+                exponent="1.5" 
+                direction="0 1 0" 
             /> 
 
             <spot id="2" enabled="true" 
-                location="8 6 7" 
-                ambient="7.9 2 1.4 6" 
-                diffuse="5 6.7 7.1 1" 
-                specular="4 0.7 4 3"
-                angle="1" 
-                exponent="3" 
-                direction="5 6 7" 
+                location="10 6 0.25" 
+                ambient="1 1 1 1" 
+                diffuse="0.2 0.2 0.2 0.2" 
+                specular="0.3 0.3 0.3 0.5"
+                angle="45" 
+                exponent="1.5" 
+                direction="0 1 0" 
+            />
+
+            <spot id="3" enabled="true" 
+                location="13 4 6" 
+                ambient="1 1 1 1" 
+                diffuse="0.6 0.6 0.6 1" 
+                specular="0 0 0 0"
+                angle="60" 
+                exponent="0.5" 
+                direction="0 -1 0" 
             />
 
     </lighting> 
 
     <!-- bloco de texturas. Este bloco tem de existir mas pode estar vazio, se nao forem usadas texturas --> 
     <textures>        
-          <texture id="ss" file="ss" /> 
+          <texture id="floor" file="floor.png" /> 
+          <texture id="table" file="table.png" /> 
+          <texture id="carpet" file="carpet.png" /> 
+          <texture id="laig" file="laig.png" /> 
+          <texture id="metal" file="metal.png" /> 
+          <texture id="tennis" file="tennis.png" /> 
+          <texture id="cand_cabo" file="cand_cabo.png" /> 
+          <texture id="cand_topo" file="cand_topo.png" /> 
+          <texture id="wall" file="wall.png" />
+		  <texture id="torus" file="torus.png" />
     </textures> 
 
     <!-- bloco de materiais; --> 
@@ -71,62 +90,489 @@
         <!--   opcionais se for usada uma textura. --> 
         <!--   ver topico 'Notas finais' no enunciado sobre os -->
         <!--   parametros texlength_...) -->  
-        <appearance id="ss" 
-            emissive="ff ff ff ff" 
-            ambient="ff ff ff ff" 
-            diffuse="ff ff ff ff" 
-            specular="ff ff ff ff" 
-            shininess="ff" 
-            textureref="ss" 
-            texlength_s="ff" 
-            texlength_t="ff" /> 
+        <appearance id="floor" 
+            emissive="1 2 3 1" 
+            ambient="1 1 1 1" 
+            diffuse="1 1 1 1" 
+            specular="0 0 0 1" 
+            shininess="15" 
+            textureref="1" 
+            texlength_s="1" 
+            texlength_t="1" /> 
+        <appearance id="table" 
+            emissive="1 2 3 1" 
+            ambient="0.2 0.2 0.2 1" 
+            diffuse="1 1 1 1" 
+            specular="0.2 0.2 0.2 1" 
+            shininess="10" 
+            textureref="2" 
+            texlength_s="1" 
+            texlength_t="1" /> 
+        <appearance id="carpet" 
+            emissive="1 2 3 1" 
+            ambient="1 1 1 1" 
+            diffuse="1 1 1 1" 
+            specular="0 0 0 1" 
+            shininess="5" 
+            textureref="3" 
+            texlength_s="8" 
+            texlength_t="4" /> 
+        <appearance id="laig" 
+            emissive="6 7 3 4" 
+            ambient="0.2 0.2 0.2 1" 
+            diffuse="0.5 0.5 0.5 1" 
+            specular="0.4 0.4 0.4 1" 
+            shininess="60" 
+            textureref="4" 
+            texlength_s="1" 
+            texlength_t="1" /> 
+        <appearance id="metal" 
+            emissive="6 7 3 4" 
+            ambient="0.2 0.2 0.2 1" 
+            diffuse="0.5 0.5 0.5 1" 
+            specular="0.4 0.4 0.4 1" 
+            shininess="60" 
+            textureref="5" 
+            texlength_s="1" 
+            texlength_t="1" /> 
+        <appearance id="tennis" 
+            emissive="6 7 3 4" 
+            ambient="0.2 0.2 0.2 1" 
+            diffuse="0.5 0.5 0.5 1" 
+            specular="0 0 0 1" 
+            shininess="8" 
+            textureref="6" 
+            texlength_s="1" 
+            texlength_t="1" />
+        <appearance id="cand_cabo" 
+            emissive="6 7 3 4" 
+            ambient="0.2 0.2 0.2 1" 
+            diffuse="0.5 0.5 0.5 1" 
+            specular="1 1 1 1" 
+            shininess="90" 
+            textureref="7" 
+            texlength_s="1" 
+            texlength_t="1" />
+        <appearance id="cand_topo" 
+            emissive="6 7 3 4" 
+            ambient="0.1 0.1 0.1 1" 
+            diffuse="0.5 0.5 0.5 1" 
+            specular="0 0 0 1" 
+            shininess="10" 
+            textureref="8" 
+            texlength_s="1" 
+            texlength_t="1" />
+        <appearance id="wall" 
+            emissive="6 7 3 4" 
+            ambient="1 1 1 1" 
+            diffuse="1 1 1 1" 
+            specular="0.1 0.1 0.1 1" 
+            shininess="15" 
+            textureref="9" 
+            texlength_s="1" 
+            texlength_t="1" />
+			
+		<appearance id = "torus"
+		    emissive="6 7 3 4" 
+            ambient="0.2 0.2 0.2 1" 
+            diffuse="0.5 0.5 0.5 1" 
+            specular="0 0 0 1" 
+            shininess="8" 
+            textureref="10" 
+            texlength_s="1" 
+            texlength_t="1" />
+			
     </appearances> 
 
     <!-- bloco do grafo; "rootid" identifica o no de raiz --> 
-    <graph rootid="ss"> 
+    <graph rootid="root"> 
 
         <!-- tem de existir, pelo menos, um bloco "node" --> 
-        <node id="ss"> 
+        <node id="mesa"> 
             <!-- bloco "transforms" obrigatorio --> 
             <transforms> 
                 <!-- deve conter transformacoes explicitas usando as instrucoes seguintes sem limite nem ordem --> 
                 <!-- ex: bloco transforms pode ficar sem conteudo --> 
                 <!-- ex: bloco transforms pode ser R,T (nao tem S) --> 
                 <!-- ex: bloco transforms pode ser R,S,T,S --> 
-                <translate to="ff ff ff" /> 
-                <rotate axis="ee" angle="ff" /> 
-                <scale factor="ff ff ff" /> 
+                <translate to="7.5 -0.5 6.0" />   
             </transforms> 
            
             <!-- declaracao da aparencia a utilizar (pode ser omitida): --> 
             <!-- a) se declarada sobrepoe-se 'a aparencia do "pai" --> 
             <!-- b) se omitida, o no' mantem (herda) a aparencia do "pai" --> 
 
-            <appearanceref id="ss" /> 
+            <appearanceref id="table" /> 
                                
              <!-- bloco "children" obrigatorio --> 
             <children> 
 
-                <!-- deve existir no minimo uma primitiva, ou uma referencia a outros nos --> 
-                <!-- podem existir varias primitivas e/ou referencias a outros nos --> 
 
-                <!-- Primitivas : rectangle, triangle, cylinder, sphere, torus --> 
-                <!--   Comandos a serem interpretados genericamente como em OpenGL/GLUT, exceto --> 
-                <!--   o cilindro, que deve adicionalmente ter topos ou tampas) -->             
-                <rectangle xy1="ff ff" xy2="ff ff" /> 
-                <triangle xyz1="ff ff ff" xyz2="ff ff ff" xyz3="ff ff ff" /> 
-                <cylinder base="ff" top="ff" height="ff" slices="ii" stacks="ii" />      <!-- deve ter topos --> 
-                <sphere radius="ff" slices="ii" stacks="ii" /> 
-                <torus inner="ff" outer="ff" slices="ii" loops="ii" /> 
-                
-                <!-- Referencia a outros elementos do grafo --> 
-                <!-- (repetir o nº de vezes necessario) --> 
-                <!-- LEMBRANDO: qualquer no' pode ser referenciado previamente 'a sua declaracao; isto --> 
-                <!--            é, a ordem pela qual os nós são declarados é irrelevante --> 
-
-                <noderef id="ss" /> 
+                <noderef id="tampo" /> 
+				<noderef id="perna1" /> 
+				<noderef id="perna2" /> 
+				<noderef id="perna3" /> 
+				<noderef id="perna4" /> 
 
             </children> 
         </node> 
-    </graph> 
+		
+		<node id="tampo">
+			<transforms>
+				<translate to="0.0 2.0 0.0"/>
+				<scale factor="3.0 0.3 3.0"/>
+			</transforms>
+			
+			<children>
+				<noderef id="cubo"/>
+			</children>
+		</node>
+		
+		<node id="perna1">
+		
+		<transforms>
+		<translate to="1.0 1.2 1.0"/>
+		<scale factor="0.3 1.5 0.3"/>
+		</transforms>
+		
+		<children>
+		<noderef id="cubo"/>
+		</children>
+		
+		</node>
+		
+		<node id="perna2">
+		
+		<transforms>
+		<translate to="-1.0 1.2 -1.0"/>
+		<scale factor="0.3 1.5 0.3"/>
+		</transforms>
+		
+		<children>
+		<noderef id="cubo"/>
+		</children>
+		
+		</node>
+		
+		<node id="perna3">
+		
+		
+		<transforms>
+		<translate to="-1.0 1.2 1.0"/>
+		<scale factor="0.3 1.5 0.3"/>
+		</transforms>
+		
+		<children>
+		<noderef id="cubo"/>
+		</children>
+		
+		</node>
+		
+		<node id="perna4">
+		
+		<transforms>
+		<translate to="1.0 1.2 -1.0"/>
+		<scale factor="0.3 1.5 0.3"/>
+		</transforms>
+		
+		<children>
+		<noderef id="cubo"/>
+		</children>
+		
+		</node>
+		
+		<node id="cubo">
+		
+		<transforms>
+		</transforms>
+		
+		<children>
+		<noderef id="f1" />
+		<noderef id="f2" />
+		<noderef id="f3" />
+		<noderef id="f4" />
+		<noderef id="f5" />
+		<noderef id="f6" />
+		</children>
+		
+		</node>
+		
+		
+		<node id="rectangulo" >
+		
+		<transforms>
+		</transforms>
+		
+		<children>
+		<rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
+		</children>
+		
+		</node>
+		
+		<node id ="f1">
+		
+		<transforms>
+		<translate to ="0.0 0.0 0.5" />
+		</transforms>
+		
+		<children>
+		<noderef id="rectangulo" />
+		</children>
+		</node>
+		
+		<node id ="f2">
+		
+		<transforms>
+		<translate to ="0.0 0.0 -0.5" />
+		<rotate axis="y" angle="180" />
+		</transforms>
+		
+		<children>
+		<noderef id ="rectangulo" />
+		</children>
+		</node>
+		
+		<node id ="f3">
+		
+		<transforms>
+		<translate to ="0.5 0.0 0.0" />
+		<rotate axis="y" angle="90" />
+		</transforms>
+		
+		<children>
+		<noderef id ="rectangulo" />
+		</children>
+		</node>
+		
+		<node id ="f4">
+		
+		<transforms>
+		<translate to ="-0.5 0.0 0.0" />
+		<rotate axis="y" angle="-90" />
+		</transforms>
+		
+		<children>
+		<noderef id ="rectangulo" />
+		</children>
+		</node>
+		
+		<node id ="f5">
+		
+		<transforms>
+		<translate to ="0.0 0.5 0.0" />
+		<rotate axis="x" angle="-90" />
+		</transforms>
+		
+		<children>
+		<noderef id ="rectangulo" />
+		</children>
+		</node>
+		
+		<node id ="f6">
+		
+		<transforms>
+		<translate to ="0.0 -0.5 0.0" />
+		<rotate axis="x" angle="90" />
+		</transforms>
+		
+		<children>
+		<noderef id ="rectangulo" />
+		</children>
+		</node>
+		
+	
+		
+		<node id="torus">
+		<transforms>
+		<translate to ="9.78 1.0 5.0" />
+		<rotate axis="z" angle ="30" />
+		<rotate axis="y" angle="60" />
+		</transforms>
+		
+		<appearanceref id="torus" />
+		<children>
+		<torus inner="0.3" outer ="0.7" slices="200" loops="200" />
+		</children>
+		
+		</node>
+	
+	<node id="tennis">
+	
+	<transforms>
+	<translate to="7.5 1.82 6.0" />
+	</transforms>
+	<appearanceref id="tennis" />
+	<children>
+	<sphere radius="0.2" slices="200" stacks="200" />
+	</children>
+	</node>
+	
+	<node id ="plano" >
+	<transforms>
+	</transforms>
+	
+	<children>
+	<noderef id="rect_unit" />
+	</children>
+	</node>
+	
+	<node id="chao" >
+	
+	<transforms>
+	<rotate axis="z" angle="-90" />
+	<rotate axis="y" angle="270" />
+	<scale factor ="15.0 15.0 1.0" />
+	</transforms>
+	
+	<appearanceref id ="floor" />
+	<children>
+	<noderef id="plano" />
+	</children>
+	</node>
+	
+	<node id ="parede1">
+	<transforms>
+	<scale factor ="15.0 10.0 1.0" />
+	</transforms>
+	
+	<appearanceref id ="wall" />
+	<children>
+	<noderef id="plano" />
+	</children>
+	</node>
+	
+	<node id ="parede2" >
+	<transforms>
+	<translate to="0.0 0.0 15.0" />
+	<rotate axis="y" angle="90" />
+	<scale factor ="15.0 10.0 1.0" />
+	</transforms>
+	
+	<appearanceref id="wall" />
+	
+	<children>
+	<noderef id ="plano" />
+	</children>
+	</node>
+	
+	<node id="carpet" >
+	
+	<transforms>
+	<translate to ="3.5 0.05 8.0" />
+	<rotate axis ="x" angle = "-90" />
+	<scale factor="8.0 4.0 1.0" />
+	</transforms>
+	
+	<appearanceref id="carpet" />
+	
+	<children>
+	<noderef id="plano"/>
+	</children>
+	</node>
+	
+	<node id = "poster">
+	<transforms>
+	<translate to ="2.0 6.0 0.1" />
+	<scale factor ="5.0 3.0 1.0" />
+	</transforms>
+	
+	<appearanceref id="laig" />
+	
+	<children>
+	<noderef id="plano" />
+	</children>
+	</node>
+	
+	<node id="rect_unit">
+	
+	<transforms>
+	</transforms>
+	
+	<children>
+	<rectangle xy1="0.0 0.0" xy2="1.0 1.0" />
+	</children>
+	</node>
+	
+	<node id=" candeeiro" >
+	<transforms>
+	<translate to ="13.0 0.0 6.0" />
+	</transforms>
+	
+	<children>
+	<noderef id ="cabo" />
+	<noderef id="topo" />
+	</children>
+	</node>
+	
+	<node id ="cabo" >
+	
+	<transforms>
+	<rotate axis="x" angle="-90" />
+	</transforms>
+	
+	<appearanceref id="cand_cabo" />
+	
+	<children>
+	<cylinder base= "0.1" top ="0.1" height ="3.4" slices="10" stacks="10" />
+	</children>
+	</node>
+	
+	<node id= "topo" >
+	<transforms>
+	<translate to ="0.0 3.6 0.0" />
+	<rotate axis="x" angle = "-90" />
+	<rotate axis="z" angle = "90" />
+	</transforms>
+	
+	<appearanceref id="cand_topo" />
+	
+	<children>
+	<cylinder base = "1.1" top ="0.3" height ="1.0" slices ="200" stacks="200" />
+	</children>
+	</node>
+	
+	<node id ="cand_p1">
+	
+	<transforms>
+	<translate to ="0.25 6.0 10.0" />
+	<rotate axis="y" angle="90" />
+	<scale factor="1.0 0.5 0.5" />
+	</transforms>
+	
+	<appearanceref id="metal" />
+	
+	<children>
+	<noderef id ="cubo_4f" />
+	</children>
+	</node>
+	
+	<node id ="cand_p2">
+	
+	<transforms>
+	<translate to ="10.0 6.0 0.25" />
+	<scale factor="1.0 0.5 0.5" />
+	</transforms>
+	
+	<appearanceref id="metal" />
+	
+	<children>
+	<noderef id ="cubo_4f" />
+	</children>
+	</node>
+	
+	<node id="cubo_4f">
+		
+	<transforms>
+	</transforms>
+		
+	<children>
+	<noderef id="f2" />
+	<noderef id="f3" />
+	<noderef id="f4" />
+	<noderef id="f5" />
+	</children>
+		
+	</node>
+
+	</graph> 
 </yaf> 

@@ -1,5 +1,8 @@
 #include "Node.h"
 #include <iostream>
+#include "CGFapplication.h"
+
+
 Node::Node(char *id)
 {
 	
@@ -62,17 +65,10 @@ vector <Node *> Node::getChildren()
 {
 	return children;
 }
-/*int Node::setNextMatrixValue(float value)
-{
-	for(int i = 0; i< 16; i++)
-	{
-		if(matrix[i] == -1.0) 
-			{
-				matrix[i] = value;
-				
-				return 0;
-			}
-	}
 
-	return 1;
-}*/
+
+void Node::setTextureFile(char *path)
+{
+	string _path(path);
+	textura = new CGFappearance(_path,GL_REPEAT,GL_REPEAT);
+}
