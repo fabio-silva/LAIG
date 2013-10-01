@@ -1,5 +1,6 @@
 #include "Cena.h"
 #include <iostream>
+
 Cena::Cena()
 {
 }
@@ -20,10 +21,10 @@ void Cena::setGlobals(float backR, float backG, float backB, float backAlpha, ch
 
 void Cena::init()
 {
-	glutPostRedisplay();
+	//glutPostRedisplay();
 
 	glClearColor(backR,backG,backB,backAlpha); 
-	
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 
@@ -41,15 +42,17 @@ void Cena::init()
 	if(strcmp(cullorder, "CW") == 0) glFrontFace(GL_CW);
 	else glFrontFace(GL_CCW);
 
-	float cores[] = {1,1,1,1};
+	float cores[] = {0.5,0.5,0.5,1};
 	float pos[] = {5,5,5};
-		glMaterialfv(GL_FRONT, GL_SPECULAR, cores);
-	glMaterialf(GL_FRONT, GL_SHININESS, 100);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, cores);
+	/*glLightfv(GL_LIGHT0, GL_AMBIENT, cores);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, cores);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, cores);
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
-	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT0);*/
+
+	float light0_pos[4] = {4.0, 6.0, 5.0, 1.0};
+	light0 = new CGFlight(GL_LIGHT0, light0_pos);
+	light0->enable();
 
 	if(ambient_light->isDoubleSided()) glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 	else glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
@@ -60,11 +63,29 @@ void Cena::init()
 	//if(ambient_light->isEnabled()) glEnable(GL_LIGHT0);
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, &ambient_light->getAmbient()[0]);
+}
 
+void Cena::display()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode( GL_PROJECTION);
+	glLoadIdentity();
 
+	//CGFscene::activeCamera->applyView();
+	glFrustum(-10, 10, -10, 10, 0, 100.0 ); //Alterar de acordo com yaf
 
+	glMatrixMode( GL_MODELVIEW);
 
+	light0->draw();
+	axis.draw();
 
+	GLUquadric *quad =  gluNewQuadric();
+	glPushMatrix();
+	//glTranslated(2,1,2);
+	gluSphere(quad,0.3,200,200);
+	glPopMatrix();
+
+	glutSwapBuffers();
 }
 
 void Cena::setAmbient(Light *ambient)
@@ -80,4 +101,8 @@ void Cena::addSpot(Spot *spot)
 void Cena::addOmni(Omni *omni)
 {
 	omnis.push_back(omni);
+}
+
+Cena::~Cena()
+{
 }

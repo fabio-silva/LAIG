@@ -1,7 +1,4 @@
-
 #include "YafReader.h"
-#include "LightingScene.h"
-#include "TPinterface.h"
 #define DIMX 400
 #define DIMY 400
 
@@ -13,7 +10,6 @@ void processMouseMoved(int x, int y);
 void processPassiveMouseMoved(int x, int y);
 
 int main_window;
-CGFaxis *axis = new CGFaxis();
 YafReader *x;
 float xy_aspect;
 GLUI  *glui2;
@@ -27,6 +23,16 @@ void init()
 {
 	x->scene.init();
 }
+
+void keyboard(unsigned char key, int x, int y)
+{
+   switch (key) {
+      case 27:		// tecla de escape termina o programa
+         exit(0);
+         break;
+   }
+}
+
 
 int main(int argc, char* argv[])
 {	
@@ -42,27 +48,16 @@ int main(int argc, char* argv[])
 	main_window = glutCreateWindow(argv[0]);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
 	glutMouseFunc(processMouse);
 	glutMotionFunc(processMouseMoved);
 	glutPassiveMotionFunc(processPassiveMouseMoved);   
 
 	GLUI_Master.set_glutIdleFunc(myGlutIdle);
-	/*** Create the bottom subwindow ***/
-	glui2 = GLUI_Master.create_glui_subwindow( main_window, GLUI_SUBWINDOW_BOTTOM );
-	glui2->set_main_gfx_window( main_window );
 
-	GLUI_Rotation *view_rot = glui2->add_rotation( "Rotacao", view_rotate );
-	view_rot->set_spin( 1.0 );
-	glui2->add_column( false );
-
-	GLUI_Translation *trans_z = 
-		glui2->add_translation( "Zoom", GLUI_TRANSLATION_Z, &obj_pos[2] );
-	trans_z->set_speed( .02 );
 	init();	
 
 	glutMainLoop();
-
-
 }
 
 void myGlutIdle()
@@ -87,24 +82,7 @@ void reshape(int w, int h)
 
 void display()
 {
-
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
-	glFrustum(-100, 100, -100, 100, 5, 100.0 ); //Alterar de acordo com yaf
-    glTranslatef( obj_pos[0], obj_pos[1], -obj_pos[2] );    
-	glMultMatrixf( view_rotate );
-
-	axis->draw();
-	GLUquadric *quad =  gluNewQuadric();
-	glPushMatrix();
-	glTranslated(2,1,2);
-	gluSphere( quad,0.3,200,200);
-	glPopMatrix();
-	glutSwapBuffers();
-	glFlush();
+	x->scene.display();
 }
 
 void processMouse(int button, int state, int x, int y)
@@ -135,4 +113,3 @@ void processPassiveMouseMoved(int x, int y)
 	// pedido de refrescamento da janela
 	glutPostRedisplay();				
 }
-

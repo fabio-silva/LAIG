@@ -1,5 +1,16 @@
 #include "YafReader.h"
 
+char* YafReader::findTextureById(char* id)
+{
+	for (int i = 0; i < textures.size(); i++)
+	{
+		if (strcmp(textures[i]->getId(),id) == 0)
+		{
+			return textures[i]->getId();
+		}
+	}
+}
+
 YafReader::YafReader(char* filename)
 {
 
@@ -430,6 +441,33 @@ YafReader::YafReader(char* filename)
 					cout << "Error parsing the Specular values!Exiting!" << endl;
 					//exit(1);
 				}
+
+				vector<float> location_vec;
+				location_vec.push_back(locationX);
+				location_vec.push_back(locationY);
+				location_vec.push_back(locationZ);
+
+				vector<float> ambient_vec;
+				ambient_vec.push_back(ambientR);
+				ambient_vec.push_back(ambientG);
+				ambient_vec.push_back(ambientB);
+				ambient_vec.push_back(ambientAlpha);
+
+				vector<float> diffuse_vec;
+				diffuse_vec.push_back(diffuseR);
+				diffuse_vec.push_back(diffuseG);
+				diffuse_vec.push_back(diffuseB);
+				diffuse_vec.push_back(diffuseAlpha);
+
+				vector<float> specular_vec;
+				specular_vec.push_back(specularR);
+				specular_vec.push_back(specularG);
+				specular_vec.push_back(specularB);
+				specular_vec.push_back(specularAlpha);
+
+				Omni* omni_light = new Omni(location_vec, ambient_vec, diffuse_vec, specular_vec, id, enabled);
+
+				scene.addOmni(omni_light);
 			}
 
 			i++;
@@ -554,6 +592,38 @@ YafReader::YafReader(char* filename)
 					cout << "Error parsing the Direction values!Exiting!" << endl;
 					//exit(1);
 				}
+
+				vector<float> location_vec;
+				location_vec.push_back(locationX);
+				location_vec.push_back(locationY);
+				location_vec.push_back(locationZ);
+
+				vector<float> ambient_vec;
+				ambient_vec.push_back(ambientR);
+				ambient_vec.push_back(ambientG);
+				ambient_vec.push_back(ambientB);
+				ambient_vec.push_back(ambientAlpha);
+
+				vector<float> diffuse_vec;
+				diffuse_vec.push_back(diffuseR);
+				diffuse_vec.push_back(diffuseG);
+				diffuse_vec.push_back(diffuseB);
+				diffuse_vec.push_back(diffuseAlpha);
+
+				vector<float> specular_vec;
+				specular_vec.push_back(specularR);
+				specular_vec.push_back(specularG);
+				specular_vec.push_back(specularB);
+				specular_vec.push_back(specularAlpha);
+
+				vector<float> direction_vec;
+				direction_vec.push_back(directionX);
+				direction_vec.push_back(directionY);
+				direction_vec.push_back(directionZ);
+
+				Spot* spot_light = new Spot(location_vec, ambient_vec, diffuse_vec, specular_vec, direction_vec, id, enabled, angle, exponent);
+
+				scene.addSpot(spot_light);
 			}
 
 			i++;
@@ -582,6 +652,10 @@ YafReader::YafReader(char* filename)
 			cout << "Textures id: " << id << endl;
 
 			cout << "File : " << textFile << endl;
+
+			Texture* texture = new Texture(id, textFile);
+
+			textures.push_back(texture);
 		}
 	}
 

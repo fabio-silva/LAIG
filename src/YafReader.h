@@ -6,6 +6,8 @@
 #include <string>
 #include "Grafo.h"
 #include "Cena.h"
+#include "Texture.h"
+
 using namespace std;
 
 class YafReader
@@ -17,17 +19,17 @@ public:
 	Cena scene;
 protected:
 
-	
-	TiXmlDocument* yafDocument;
-	
+	char* findTextureById(char* id);
+
+	TiXmlDocument* yafDocument;	
 	TiXmlElement* globalsElement;
 	TiXmlElement* camerasElement;
 	TiXmlElement* lightingElement;
 	TiXmlElement* texturesElement;
 	TiXmlElement* appearancesElement;
 	TiXmlElement* graphElement;
-
 	Grafo graph;
+	vector<Texture*> textures;
 };
 
 #endif
