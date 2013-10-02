@@ -9,5 +9,6 @@ public:
 private:
 	char* id;
 	char* file_path;
+	
 };
 #endif

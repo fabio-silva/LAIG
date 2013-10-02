@@ -3,15 +3,15 @@
 #include "CGFapplication.h"
 
 
-Node::Node(char *id)
+Node::Node(char *id, bool root)
 {
 	
 	this->id = id;
 	for(int i = 0; i<16; i++) matrix[i] = 0.0;
 
-	root = false;
+	this->root = root;
 
-
+	
 	
 }
 
@@ -40,11 +40,6 @@ float *Node::getMatrix()
 	return matrix;
 }
 
-void Node::setRoot()
-{
-	root = true;
-}
-
 bool Node::isRoot()
 {
 	return root;
@@ -54,6 +49,7 @@ void Node::addChild(Node *child)
 	children.push_back(child);
 	child->setParent(this);
 	child->setMatrix(matrix);
+	child->setMaterial(material);
 }
 
 void Node::setMatrix(float mat[16])
@@ -66,9 +62,26 @@ vector <Node *> Node::getChildren()
 	return children;
 }
 
-
-void Node::setTextureFile(char *path)
+void Node::setMaterial(Material *m)
 {
-	string _path(path);
-	textura = new CGFappearance(_path,GL_REPEAT,GL_REPEAT);
+	
+	this->material = m;
+}
+
+void Node::setPrimitiva(char *primitiva, vector<float> data, char *cullorder)
+{
+
+	this->primitiva = primitiva;
+	this->data = data;
+	this->cullorder = cullorder;
+}
+
+vector<float> Node::getData()
+{
+	return data;
+}
+
+char *Node::getTipo()
+{
+	return primitiva;
 }

@@ -7,8 +7,9 @@
 #include "Grafo.h"
 #include "Cena.h"
 #include "Texture.h"
+#include "Material.h"
+#include "Node.h"
 
-using namespace std;
 
 class YafReader
 {
@@ -28,8 +29,10 @@ protected:
 	TiXmlElement* texturesElement;
 	TiXmlElement* appearancesElement;
 	TiXmlElement* graphElement;
-	Grafo graph;
+	//Grafo graph;
 	vector<Texture*> textures;
+	vector<Material*> materials;
+	
 };
 
 #endif

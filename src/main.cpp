@@ -24,6 +24,15 @@ void init()
 	x->scene.init();
 }
 
+void display()
+{
+	glLoadIdentity();
+	glMultMatrixf( view_rotate );
+	   glTranslatef( obj_pos[0], obj_pos[1], -obj_pos[2] );  
+	x->scene.display();
+}
+
+
 void keyboard(unsigned char key, int x, int y)
 {
    switch (key) {
@@ -39,20 +48,33 @@ int main(int argc, char* argv[])
 	if(argc == 2) x = new YafReader(argv[1]);
 	else x = new YafReader("projXML.yaf");
 
+	
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(1280, 720);
 	glutInitWindowPosition(30,30);
 
-
+	
 	main_window = glutCreateWindow(argv[0]);
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(processMouse);
 	glutMotionFunc(processMouseMoved);
-	glutPassiveMotionFunc(processPassiveMouseMoved);   
+	glutPassiveMotionFunc(processPassiveMouseMoved); 
 
+	GLUI  *glui2 = GLUI_Master.create_glui_subwindow( main_window, GLUI_SUBWINDOW_BOTTOM );
+	glui2->set_main_gfx_window( main_window );
+
+	GLUI_Rotation *view_rot = glui2->add_rotation( "Rotacao", view_rotate );
+	view_rot->set_spin( 1.0 );
+	glui2->add_column( false );
+
+	GLUI_Translation *trans_z = 
+	glui2->add_translation( "Zoom", GLUI_TRANSLATION_Z, &obj_pos[2] );
+	trans_z->set_speed( .02 );
+	
 	GLUI_Master.set_glutIdleFunc(myGlutIdle);
 
 	init();	
@@ -80,10 +102,6 @@ void reshape(int w, int h)
 
 }
 
-void display()
-{
-	x->scene.display();
-}
 
 void processMouse(int button, int state, int x, int y)
 {

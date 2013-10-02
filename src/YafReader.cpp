@@ -1,5 +1,8 @@
 #include "YafReader.h"
 
+
+using namespace std;
+
 char* YafReader::findTextureById(char* id)
 {
 	for (int i = 0; i < textures.size(); i++)
@@ -14,7 +17,7 @@ char* YafReader::findTextureById(char* id)
 YafReader::YafReader(char* filename)
 {
 
-
+	vector<Node *> graph;
 	yafDocument = new TiXmlDocument(filename);
 
 	bool loadSuccessful = yafDocument->LoadFile();
@@ -686,7 +689,7 @@ YafReader::YafReader(char* filename)
 			float textRef, textL_S, textL_T;
 
 			id = (char *)appElement->Attribute("id");
-
+			
 			cout <<endl << endl << "Processing texture number " << i << ", id = " << id << endl;
 			emissive = (char *)appElement->Attribute("emissive");
 			ambient = (char *)appElement->Attribute("ambient");
@@ -715,13 +718,46 @@ YafReader::YafReader(char* filename)
 
 			textureref = (char *)appElement -> Attribute("textureref");
 
-			if(textureref != NULL) cout << "Texture reference: " << textureref << endl;
+	
 
 			if(texlength_s && sscanf(texlength_s,"%f",&textL_S) == 1) 
 				cout << "Length_s value: " <<texlength_s << endl;
 
 			if(texlength_t && sscanf(texlength_t,"%f",&textL_T) == 1) 
 				cout << "Length_t value: " <<texlength_t << endl;
+
+			vector<float> emission, ambience, diff, spec;
+			emission.push_back(emA);
+			emission.push_back(emB);
+			emission.push_back(emC);
+			emission.push_back(emD);
+			ambience.push_back(ambR);
+			ambience.push_back(ambG);
+			ambience.push_back(ambB);
+			ambience.push_back(ambAlpha);
+			diff.push_back(difA);
+			diff.push_back(difB);
+			diff.push_back(difC);
+			diff.push_back(difD);
+			spec.push_back(specA);
+			spec.push_back(specB);
+			spec.push_back(specC);
+			spec.push_back(specD);
+
+			Material *mat = new Material(id, emission, ambience, diff, spec, shin, textL_S, textL_S);
+
+			if(textureref != NULL) 
+				{
+					cout << "Texture reference: " << textureref << endl;
+
+					for(int i = 0; i<textures.size() ; i++)
+						
+						if( strcmp(textures[i]->getId(), textureref) == 0) mat->setTexture(textures[i]);
+					
+
+				}
+
+			materials.push_back(mat);
 
 		}
 	}
@@ -739,16 +775,14 @@ YafReader::YafReader(char* filename)
 	else
 	{
 		char *rootId = NULL;
-
 		rootId = (char *) graphElement->Attribute("rootid");
-
 		cout << "Root id: " << rootId << endl;
-
 		int i = 1;
 		TiXmlElement* nodeElement = graphElement->FirstChildElement("node");
-
+		Node *rt = new Node(rootId, true);
 		//Node tags processing
-
+		graph.push_back(rt);
+		
 		while(nodeElement)
 		{
 			char *nodeId = NULL;
@@ -757,7 +791,11 @@ YafReader::YafReader(char* filename)
 
 			cout << "Processing Node number " << i << " id: " << nodeId << endl << endl;
 
+			Node *nd = new Node(nodeId, false);
+			
 			//Children tags(transforms, appearances, primitives, etc.) processing
+
+			
 
 			TiXmlElement* childrenElemenent = nodeElement->FirstChildElement("transforms");
 
@@ -842,6 +880,12 @@ YafReader::YafReader(char* filename)
 
 						id = (char *) childrenElemenent->Attribute("id");
 
+						for(int i = 0; i<materials.size(); i++)
+						{
+							if( strcmp(materials[i]->getId(), id) == 0) nd->setMaterial(materials[i]);
+							
+						}
+
 						cout << "Appearance id: " << id << endl;
 					}
 
@@ -855,8 +899,15 @@ YafReader::YafReader(char* filename)
 
 						while(childrenTypeElement)
 						{
+							char *cullorder = (char*)malloc(sizeof(char) * 20), *tipo = (char*)malloc(sizeof(char) * 20);
+							vector<float> data;
+							if( strcmp(scene.getCullOrder(), "CW") == 0) cullorder = "CW";
+							else cullorder = "CCW";
+
 							if (strcmp(childrenTypeElement->Value(),"rectangle") == 0)
 							{
+								tipo = "rectangle";
+
 								cout << endl << "Rectangle tag!" << endl;
 
 								char *xy1 = NULL, *xy2 = NULL;
@@ -875,10 +926,21 @@ YafReader::YafReader(char* filename)
 								{
 									cout << "Xy2 values: " << xy2X << " " << xy2Y << endl;
 								}
+
+								
+
+								
+								data.push_back(xy1X);
+								data.push_back(xy1Y);
+								data.push_back(xy2X);
+								data.push_back(xy2Y);
+
+								
 							}
 
 							if (strcmp(childrenTypeElement->Value(),"triangle") == 0)
 							{
+								tipo = "triangle";
 								cout << endl << "Triangle tag!" << endl;
 
 								char *xyz1 = NULL, *xyz2 = NULL, *xyz3 = NULL;
@@ -904,10 +966,26 @@ YafReader::YafReader(char* filename)
 								{
 									cout << "Xyz3 values: " << xyz3X << " " << xyz3Y << " " << xyz3Z << endl;
 								}
+
+								data.push_back(xyz1X);
+								data.push_back(xyz1Y);
+								data.push_back(xyz1Z);
+
+								data.push_back(xyz2X);
+								data.push_back(xyz2Y);
+								data.push_back(xyz2Z);
+
+								data.push_back(xyz3X);
+								data.push_back(xyz3Y);
+								data.push_back(xyz3Z);
+
+
 							}
 
 							if (strcmp(childrenTypeElement->Value(),"cylinder") == 0)
 							{
+
+								tipo = "cylinder";
 								cout << endl << "Cylinder tag!" << endl;
 
 								float base, top, height;
@@ -962,6 +1040,12 @@ YafReader::YafReader(char* filename)
 									cout << "Error processing the Cylinder Stacks value!Exiting!" << endl;
 									//exit(1);
 								}
+
+								data.push_back(base);
+								data.push_back(top);
+								data.push_back(height);
+								data.push_back((float)slices);
+								data.push_back((float)stacks);
 							}
 
 							if (strcmp(childrenTypeElement->Value(),"sphere") == 0)
@@ -1000,6 +1084,10 @@ YafReader::YafReader(char* filename)
 									cout << "Error processing the Sphere Stacks value!Exiting!" << endl;
 									//exit(1);
 								}
+
+								data.push_back(radius);
+								data.push_back((float)slices);
+								data.push_back((float)stacks);
 							}
 
 							if (strcmp(childrenTypeElement->Value(),"torus") == 0)
@@ -1048,6 +1136,11 @@ YafReader::YafReader(char* filename)
 									cout << "Error processing the Torus Loops value!Exiting!" << endl;
 									//exit(1);
 								}
+
+								data.push_back(inner);
+								data.push_back(outer);
+								data.push_back((float)slices);
+								data.push_back((float)loops);
 							}
 
 							if (strcmp(childrenTypeElement->Value(),"noderef") == 0)
@@ -1058,8 +1151,13 @@ YafReader::YafReader(char* filename)
 
 								id = (char *) childrenTypeElement->Attribute("id");
 
+								Node *child = new Node(id, false);
+								nd->addChild(child);
+								
 								cout << "Noderef id: " << id << endl;
 							}
+
+							else nd->setPrimitiva(tipo, data, cullorder);
 
 							childrenTypeElement = childrenTypeElement->NextSiblingElement();
 						}
@@ -1071,10 +1169,15 @@ YafReader::YafReader(char* filename)
 
 			i++;
 			nodeElement = nodeElement->NextSiblingElement();
+
+			graph.push_back(nd);
 		}
 	}
 
+	scene.setGraph(graph);
 	cout << endl << "Terminated parsing the .yaf file!" << endl << "Press Enter key to exit..";
+
+	for(int i  = 0;i<graph.size();i++) cout <<endl<< graph[i]->getId() << endl;
 }
 
 YafReader::~YafReader()

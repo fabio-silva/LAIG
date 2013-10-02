@@ -2,25 +2,32 @@
 #define NODE_H
 
 #include "CGFappearance.h"
+#include "Material.h"
 #include <vector>
 #include <string>
 using namespace std;
 
+
 class Node
 {
 public:
-	Node(char *id);
+	Node(char *id, bool root);
 	char *getId();
 	char *getParentId();
 	void setParent(Node *parent);
 	void setChildren(vector<Node*> children);
 	float *getMatrix();
 	void addChild(Node *child);
-	void setRoot();
 	bool isRoot();
 	vector<Node *> getChildren();
 	void setMatrix(float mat[16]);
-	void setTextureFile(char *path);
+	void setMaterial(Material *m);
+	
+	
+	void setPrimitiva(char *tipo, vector<float> data, char *cullorder); 
+
+	vector<float> getData();
+	char *getTipo();
 
 protected:
 	float matrix[16];
@@ -28,7 +35,10 @@ protected:
 	Node *parent;
 	char *id;
 	bool root;
-	CGFappearance *textura;
+	Material *material;
+	char *primitiva;
+	char *cullorder;
+	vector<float> data;
 };
 
 #endif
