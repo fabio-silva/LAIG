@@ -2,6 +2,7 @@
 #define YAF_READER_H
 
 #include "tinyxml.h"
+#include <math.h>
 #include <iostream>
 #include <string>
 #include "Grafo.h"
@@ -21,6 +22,7 @@ public:
 protected:
 
 	char* findTextureById(char* id);
+	Node* findNodeById(char* id);
 
 	TiXmlDocument* yafDocument;	
 	TiXmlElement* globalsElement;
@@ -32,6 +34,8 @@ protected:
 	//Grafo graph;
 	vector<Texture*> textures;
 	vector<Material*> materials;
+	vector< vector <char*>> noderefs_vec;
+	vector<Node *> graph;
 	
 };
 

@@ -10,9 +10,6 @@ Node::Node(char *id, bool root)
 	for(int i = 0; i<16; i++) matrix[i] = 0.0;
 
 	this->root = root;
-
-	
-	
 }
 
 char *Node::getId()
@@ -84,4 +81,27 @@ vector<float> Node::getData()
 char *Node::getTipo()
 {
 	return primitiva;
+}
+
+char *Node::getCullOrder()
+{
+	return cullorder;
+}
+
+void Node::translate(float m[16])
+{
+	glLoadMatrixf(matrix);
+	glMultMatrixf(m);
+}
+
+void Node::rotate(float m[16])
+{
+	glLoadMatrixf(matrix);
+	glMultMatrixf(m);
+}
+
+void Node::scale(float m[16])
+{
+	glLoadMatrixf(matrix);
+	glMultMatrixf(m);
 }

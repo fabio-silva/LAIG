@@ -376,15 +376,17 @@ void Cena::init()
 void Cena::display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glMatrixMode( GL_PROJECTION);
 	glLoadIdentity();
 
 	//CGFscene::activeCamera->applyView();
-	glFrustum(-10, 10, -10, 10, 0, 100.0 ); //Alterar de acordo com yaf
+	glFrustum(-1, 1, -1, 1, 1.5, 500.0 ); //Alterar de acordo com yaf
 
 	glMatrixMode( GL_MODELVIEW);
 
-	//light0->draw();
+	gluLookAt(0,0,15,0,0,0,0,1,0);
+
 	axis.draw();
 
 	/*GLUquadric *quad =  gluNewQuadric();
@@ -397,7 +399,7 @@ void Cena::display()
 		{
 			
 			glPushMatrix();
-			glRotated(270,0,1,0);
+			glRotated(180,0,1,0);
 			glBegin(GL_POLYGON);
 			glVertex2d(graph[i]->getData()[0], graph[i]->getData()[1]);
 			glVertex2d(graph[i]->getData()[2], graph[i]->getData()[1]);

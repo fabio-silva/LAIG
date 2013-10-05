@@ -14,10 +14,19 @@ char* YafReader::findTextureById(char* id)
 	}
 }
 
+Node* YafReader::findNodeById(char* id)
+{
+	for (int i = 0; i < graph.size(); i++)
+	{
+		if (strcmp(graph[i]->getId(),id) == 0)
+		{
+			return graph[i];
+		}
+	}
+}
+
 YafReader::YafReader(char* filename)
 {
-
-	vector<Node *> graph;
 	yafDocument = new TiXmlDocument(filename);
 
 	bool loadSuccessful = yafDocument->LoadFile();
@@ -278,7 +287,7 @@ YafReader::YafReader(char* filename)
 	else
 	{
 		cout << "Processing Lighting block!" << endl;
-		
+
 		bool doublesided, local, enabled;
 		char* ambient = NULL, *ds = NULL, *l = NULL, *e = NULL;
 		float ambientR, ambientG, ambientB, ambientAlpha;
@@ -356,9 +365,9 @@ YafReader::YafReader(char* filename)
 		ambience.push_back(ambientB);
 		ambience.push_back(ambientAlpha);
 		Light *ambient_light = new Light(doublesided, local, enabled, ambience);
-		
+
 		scene.setAmbient(ambient_light);
-		
+
 		//Omni tags processing
 
 		int i = 1;
@@ -689,7 +698,7 @@ YafReader::YafReader(char* filename)
 			float textRef, textL_S, textL_T;
 
 			id = (char *)appElement->Attribute("id");
-			
+
 			cout <<endl << endl << "Processing texture number " << i << ", id = " << id << endl;
 			emissive = (char *)appElement->Attribute("emissive");
 			ambient = (char *)appElement->Attribute("ambient");
@@ -718,7 +727,7 @@ YafReader::YafReader(char* filename)
 
 			textureref = (char *)appElement -> Attribute("textureref");
 
-	
+
 
 			if(texlength_s && sscanf(texlength_s,"%f",&textL_S) == 1) 
 				cout << "Length_s value: " <<texlength_s << endl;
@@ -747,15 +756,15 @@ YafReader::YafReader(char* filename)
 			Material *mat = new Material(id, emission, ambience, diff, spec, shin, textL_S, textL_S);
 
 			if(textureref != NULL) 
-				{
-					cout << "Texture reference: " << textureref << endl;
+			{
+				cout << "Texture reference: " << textureref << endl;
 
-					for(int i = 0; i<textures.size() ; i++)
-						
-						if( strcmp(textures[i]->getId(), textureref) == 0) mat->setTexture(textures[i]);
-					
+				for(int i = 0; i<textures.size() ; i++)
 
-				}
+					if( strcmp(textures[i]->getId(), textureref) == 0) mat->setTexture(textures[i]);
+
+
+			}
 
 			materials.push_back(mat);
 
@@ -782,7 +791,7 @@ YafReader::YafReader(char* filename)
 		Node *rt = new Node(rootId, true);
 		//Node tags processing
 		graph.push_back(rt);
-		
+
 		while(nodeElement)
 		{
 			char *nodeId = NULL;
@@ -792,10 +801,10 @@ YafReader::YafReader(char* filename)
 			cout << "Processing Node number " << i << " id: " << nodeId << endl << endl;
 
 			Node *nd = new Node(nodeId, false);
-			
+
 			//Children tags(transforms, appearances, primitives, etc.) processing
 
-			
+
 
 			TiXmlElement* childrenElemenent = nodeElement->FirstChildElement("transforms");
 
@@ -822,6 +831,7 @@ YafReader::YafReader(char* filename)
 							{
 								char *translate = NULL;
 								float translateX, translateY, translateZ;
+								float m[16];
 
 								translate = (char *) transformTypeElement->Attribute("to");
 
@@ -829,12 +839,34 @@ YafReader::YafReader(char* filename)
 								{
 									cout << "Translate values: " << translateX << " " << translateY << " " << translateZ << endl;
 								}
+
+								m[0] = 1; 
+								m[1] = 0;
+								m[2] = 0;
+								m[3] = translateX;
+								m[4] = 0;
+								m[5] = 1;
+								m[6] = 0;
+								m[7] = translateY;
+								m[8] = 0;
+								m[9] = 0;
+								m[10] = 1;
+								m[11] = translateZ;
+								m[12] = 0;
+								m[13] = 0;
+								m[14] = 0;
+								m[15] = 1;
+
+								//Chamar função de translação aqui
 							}
 
 							if (strcmp(transformTypeElement->Value(),"rotate") == 0)
 							{
 								char *axis = NULL;
 								float angle;
+								float m[16];
+								float pi = acos(-1.0);
+								float deg2rad = pi / 180.0;
 
 								axis = (char *) transformTypeElement->Attribute("axis");
 
@@ -853,12 +885,141 @@ YafReader::YafReader(char* filename)
 									cout << "Error processing the Rotate Angle value!Exiting!" << endl;
 									//exit(1);
 								}
+
+								//site com as matrizes http://www.cprogramming.com/tutorial/3d/rotationMatrices.html
+								if (strcmp(axis,"x") == 0)
+								{
+									if (angle > 0)
+									{
+										m[0] = 1;
+										m[1] = 0;
+										m[2] = 0;
+										m[3] = 0;
+										m[4] = 0;
+										m[5] = cos(angle*deg2rad); 
+										m[6] = sin(angle*deg2rad);
+										m[7] = 0;
+										m[8] = 0;
+										m[9] = -sin(angle*deg2rad);
+										m[10] = cos(angle*deg2rad);
+										m[11] = 0;
+										m[12] = 0;
+										m[13] = 0;
+										m[14] = 0;
+										m[15] = 1;
+									}
+									else
+									{
+										m[0] = 1;
+										m[1] = 0;
+										m[2] = 0;
+										m[3] = 0;
+										m[4] = 0;
+										m[5] = cos(angle*deg2rad); 
+										m[6] = -sin(angle*deg2rad);
+										m[7] = 0;
+										m[8] = 0;
+										m[9] = sin(angle*deg2rad);
+										m[10] = cos(angle*deg2rad);
+										m[11] = 0;
+										m[12] = 0;
+										m[13] = 0;
+										m[14] = 0;
+										m[15] = 1;
+									}
+								}
+								else if (strcmp(axis,"y") == 0)
+								{
+									if (angle > 0)
+									{
+										m[0] = cos(angle*deg2rad);
+										m[1] = 0;
+										m[2] = -sin(angle*deg2rad);
+										m[3] = 0;
+										m[4] = 0;
+										m[5] = 1; 
+										m[6] = 0;
+										m[7] = 0;
+										m[8] = sin(angle*deg2rad);
+										m[9] = 0;
+										m[10] = cos(angle*deg2rad);
+										m[11] = 0;
+										m[12] = 0;
+										m[13] = 0;
+										m[14] = 0;
+										m[15] = 1;
+									}
+									else
+									{
+										m[0] = cos(angle*deg2rad);
+										m[1] = 0;
+										m[2] = sin(angle*deg2rad);
+										m[3] = 0;
+										m[4] = 0;
+										m[5] = 1; 
+										m[6] = 0;
+										m[7] = 0;
+										m[8] = -sin(angle*deg2rad);
+										m[9] = 0;
+										m[10] = cos(angle*deg2rad);
+										m[11] = 0;
+										m[12] = 0;
+										m[13] = 0;
+										m[14] = 0;
+										m[15] = 1;
+									}
+								}
+								else if (strcmp(axis,"z") == 0)
+								{
+									if (angle > 0)
+									{
+										m[0] = cos(angle*deg2rad);
+										m[1] = sin(angle*deg2rad);
+										m[2] = 0;
+										m[3] = 0;
+										m[4] = -sin(angle*deg2rad);
+										m[5] = cos(angle*deg2rad); 
+										m[6] = 0;
+										m[7] = 0;
+										m[8] = 0;
+										m[9] = 0;
+										m[10] = 1;
+										m[11] = 0;
+										m[12] = 0;
+										m[13] = 0;
+										m[14] = 0;
+										m[15] = 1;
+									}
+									else
+									{
+										m[0] = cos(angle*deg2rad);
+										m[1] = -sin(angle*deg2rad);
+										m[2] = 0;
+										m[3] = 0;
+										m[4] = sin(angle*deg2rad);
+										m[5] = cos(angle*deg2rad); 
+										m[6] = 0;
+										m[7] = 0;
+										m[8] = 0;
+										m[9] = 0;
+										m[10] = 1;
+										m[11] = 0;
+										m[12] = 0;
+										m[13] = 0;
+										m[14] = 0;
+										m[15] = 1;
+									}
+								}
+
+								//Chamar função de rotação aqui
+
 							}
 
 							if (strcmp(transformTypeElement->Value(),"scale") == 0)
 							{
 								char *scale = NULL;
 								float scaleX, scaleY, scaleZ;
+								float m[16];
 
 								scale = (char *) transformTypeElement->Attribute("factor");
 
@@ -866,7 +1027,26 @@ YafReader::YafReader(char* filename)
 								{
 									cout << "Scale values: " << scaleX << " " << scaleY << " " << scaleZ << endl;
 								}
+
+								m[0] = scaleX;
+								m[1] = 0;
+								m[2] = 0;
+								m[3] = 0;
+								m[4] = 0;
+								m[5] = scaleY;
+								m[6] = 0;
+								m[7] = 0;
+								m[8] = 0;
+								m[9] = 0;
+								m[10] = scaleZ;
+								m[11] = 0;
+								m[12] = 0;
+								m[13] = 0;
+								m[14] = 0;
+								m[15] = 1;
 							}
+
+							//Chamar função de escalamento aqui
 
 							transformTypeElement = transformTypeElement->NextSiblingElement();
 						}
@@ -883,7 +1063,7 @@ YafReader::YafReader(char* filename)
 						for(int i = 0; i<materials.size(); i++)
 						{
 							if( strcmp(materials[i]->getId(), id) == 0) nd->setMaterial(materials[i]);
-							
+
 						}
 
 						cout << "Appearance id: " << id << endl;
@@ -927,15 +1107,15 @@ YafReader::YafReader(char* filename)
 									cout << "Xy2 values: " << xy2X << " " << xy2Y << endl;
 								}
 
-								
 
-								
+
+
 								data.push_back(xy1X);
 								data.push_back(xy1Y);
 								data.push_back(xy2X);
 								data.push_back(xy2Y);
 
-								
+
 							}
 
 							if (strcmp(childrenTypeElement->Value(),"triangle") == 0)
@@ -1151,9 +1331,17 @@ YafReader::YafReader(char* filename)
 
 								id = (char *) childrenTypeElement->Attribute("id");
 
-								Node *child = new Node(id, false);
-								nd->addChild(child);
-								
+								/*Node *child = new Node(id, false);
+								nd->addChild(child);*/
+
+								//Vetor refs, contém o nome do nó na 1ª posição, e o id do noderef na 2ª
+								vector <char*> refs;
+								refs.push_back(nodeId);
+								refs.push_back(id);
+
+								//Vetor noderefs, contém todos os nodes que teem a tag noderef
+								noderefs_vec.push_back(refs);
+
 								cout << "Noderef id: " << id << endl;
 							}
 
@@ -1172,6 +1360,17 @@ YafReader::YafReader(char* filename)
 
 			graph.push_back(nd);
 		}
+	}
+
+	for (int i = 0; i < noderefs_vec.size(); i++)
+	{
+		//No que tem um noderef
+		Node* no_refenciado = findNodeById(noderefs_vec[i][0]);
+
+		//No do noderef
+		Node* no_referencia = findNodeById(noderefs_vec[i][1]);
+
+		no_refenciado->setPrimitiva(no_referencia->getId(), no_referencia->getData(), no_referencia->getCullOrder());
 	}
 
 	scene.setGraph(graph);
