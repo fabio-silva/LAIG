@@ -12,6 +12,8 @@ char* YafReader::findTextureById(char* id)
 			return textures[i]->getId();
 		}
 	}
+
+	return NULL;
 }
 
 Node* YafReader::findNodeById(char* id)

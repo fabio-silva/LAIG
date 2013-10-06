@@ -438,7 +438,17 @@ void Cena::setGraph(vector<Node *> graph)
 {
 	this->graph = graph; 
 }
+
 Cena::~Cena()
 {
 }
 
+vector<Spot *> Cena::getSpots()
+{
+	return spots;
+}
+
+vector<Omni *> Cena::getOmnis()
+{
+	return omnis;
+}

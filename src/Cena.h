@@ -16,12 +16,15 @@ public:
 	void setGlobals(float backR, float backG, float backB, float backAlpha, char *drawmode, char *shading, char *cullface, char *cullorder);
 	void setAmbient(Light *ambient);
 	void addSpot(Spot *spot);
-	void addOmni(Omni* omni);
+	void addOmni(Omni *omni);
 	void display();
 	void init();
 	void setGraph(vector<Node *> graph);
 	~Cena();
 	char *getCullOrder();
+	vector <Spot *> getSpots();
+	vector <Omni *> getOmnis();
+
 protected:
 	float backR, backG, backB, backAlpha;
 	char *drawmode, *shading, *cullface, *cullorder;
