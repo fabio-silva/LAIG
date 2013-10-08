@@ -1,11 +1,9 @@
 #pragma once
+#include "Primitiva.h"
 
-#include "CGFobject.h"
 
-class Torus: public CGFobject{
+class Torus:public Primitiva{
 public:
-	Torus(int numc, int numt);
+	Torus(vector<float> data,char *cullorder);
 	void draw();
-private:
-	int numc, numt;
 };

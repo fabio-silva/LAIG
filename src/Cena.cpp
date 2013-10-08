@@ -42,14 +42,6 @@ void Cena::init()
 	if(strcmp(cullorder, "CW") == 0) glFrontFace(GL_CW);
 	else glFrontFace(GL_CCW);
 
-	float cores[] = {0.5,0.5,0.5,1};
-	float pos[] = {5,5,5};
-	/*glLightfv(GL_LIGHT0, GL_AMBIENT, cores);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, cores);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, cores);
-	glLightfv(GL_LIGHT0, GL_POSITION, pos);
-	glEnable(GL_LIGHT0);*/
-
 	int n_lights = 0;
 
 	for (int i = 0; i < spots.size(); i++)
@@ -360,10 +352,6 @@ void Cena::init()
 		}
 	}
 
-	/*float light0_pos[4] = {4.0, 6.0, 5.0, 1.0};
-	light0 = new CGFlight(GL_LIGHT0, light0_pos);
-	light0->enable();*/
-
 	if(ambient_light->isDoubleSided()) glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 	else glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
 
@@ -376,38 +364,32 @@ void Cena::init()
 void Cena::display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	glMatrixMode( GL_PROJECTION);
 	glLoadIdentity();
-
 	//CGFscene::activeCamera->applyView();
-	glFrustum(-10, 10, -10, 10, 0, 100.0 ); //Alterar de acordo com yaf
-
+	//glFrustum(-1, 1, -1, 1, 1.5, 500.0 );
+	gluPerspective(90,1280/720,0.1,500);
+	//glRotated(45,0,1,0);
 	glMatrixMode( GL_MODELVIEW);
+	//glLoadIdentity();
+	gluLookAt(10,10,20,0,0,0,0,10,0);
+	
 
-	//light0->draw();
 	axis.draw();
 
 	/*GLUquadric *quad =  gluNewQuadric();
 	glPushMatrix();
 	gluSphere(quad,0.3,200,200);*/
 
-	for(int i = 0; i<graph.size();i++)
-	{
-		if( strcmp(graph[i]->getId(), "rectangulo") == 0)
+	//Chamar processNode aqui, com no root como argumento
+	//glLoadIdentity();
+	for(int i = 0; i<graph.size(); i++) if(graph[i]->isRoot()) 
 		{
-			
-			glPushMatrix();
-			glRotated(270,0,1,0);
-			glBegin(GL_POLYGON);
-			glVertex2d(graph[i]->getData()[0], graph[i]->getData()[1]);
-			glVertex2d(graph[i]->getData()[2], graph[i]->getData()[1]);
-			glVertex2d(graph[i]->getData()[2], graph[i]->getData()[3]);
-			glVertex2d(graph[i]->getData()[0], graph[i]->getData()[3]);
-			glEnd();
-			glPopMatrix();
+			//calculateMatrixes(graph[i]);
+			processNode(graph[i], NULL);
 		}
-	}
-	glPopMatrix();
+	//glPopMatrix();
 
 	glutSwapBuffers();
 }
@@ -435,6 +417,63 @@ char *Cena::getCullOrder()
 void Cena::setGraph(vector<Node *> graph)
 {
 	this->graph = graph; 
+}
+
+
+void Cena::calculateMatrixes(Node *n)
+{
+	float newMatrix[16];
+	glPushMatrix();
+	
+	glLoadMatrixf(n->getMatrix());
+	
+	if(n->getParent() != NULL) 
+	{
+		glMultMatrixf(n->getParent()->getMatrix());
+		glGetFloatv(GL_MODELVIEW_MATRIX, newMatrix);
+		n->setMatrix(newMatrix);
+	}
+
+	
+	
+	
+	//glPopMatrix();
+	
+
+	for(int i = 0; i < n->getChildren().size(); i++) calculateMatrixes(n->getChildren()[i]);
+}
+void Cena::processNode(Node *n, Material *m)
+{     
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+	//Material *mat;
+	glEnable(GL_TEXTURE_2D);
+	//if(m != NULL) m->apply();
+			
+	if(n->getMaterial() != NULL) n->getMaterial()->apply();
+	
+	
+	
+	glMultMatrixf(n->getMatrix());
+	
+	for(int i = 0; i<n->getPrimitivas().size();i++)
+	{
+		n->getPrimitivas()[i]->draw();
+	}
+		
+	glDisable(GL_TEXTURE_2D);
+
+
+		
+		for(int i = 0; i < n->getChildren().size(); i++)
+		{
+			glPushMatrix();
+			processNode(n->getChildren()[i], n->getMaterial());
+			glPopMatrix();
+		}
+			
+	
+	
 }
 Cena::~Cena()
 {

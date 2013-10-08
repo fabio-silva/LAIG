@@ -5,6 +5,7 @@
 #include "Material.h"
 #include <vector>
 #include <string>
+#include "Primitiva.h"
 using namespace std;
 
 
@@ -12,31 +13,32 @@ class Node
 {
 public:
 	Node(char *id, bool root);
-	char *getId();
-	char *getParentId();
+	char* getId();
+	char* getParentId();
 	void setParent(Node *parent);
 	void setChildren(vector<Node*> children);
-	float *getMatrix();
+	float* getMatrix();
 	void addChild(Node *child);
 	bool isRoot();
 	vector<Node *> getChildren();
 	void setMatrix(float mat[16]);
 	void setMaterial(Material *m);
-	
-	
-	void setPrimitiva(char *tipo, vector<float> data, char *cullorder); 
-
+	Material *getMaterial();
+	void addPrimitiva(Primitiva *p); 
 	vector<float> getData();
-	char *getTipo();
+	char* getCullOrder();
+	Node *getParent();
+	vector<Primitiva *> getPrimitivas();
 
 protected:
-	float matrix[16];
+	float preMatrix[16];
+	float Matrix[16];
 	vector <Node*> children; 
 	Node *parent;
 	char *id;
 	bool root;
 	Material *material;
-	char *primitiva;
+	vector<Primitiva *> primitivas;
 	char *cullorder;
 	vector<float> data;
 };

@@ -26,6 +26,7 @@ void init()
 
 void display()
 {
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glMultMatrixf( view_rotate );
 	   glTranslatef( obj_pos[0], obj_pos[1], -obj_pos[2] );  
@@ -45,8 +46,7 @@ void keyboard(unsigned char key, int x, int y)
 
 int main(int argc, char* argv[])
 {	
-	if(argc == 2) x = new YafReader(argv[1]);
-	else x = new YafReader("projXML.yaf");
+	
 
 	
 
@@ -77,7 +77,13 @@ int main(int argc, char* argv[])
 	
 	GLUI_Master.set_glutIdleFunc(myGlutIdle);
 
+
+	if(argc == 2) x = new YafReader(argv[1]);
+	else x = new YafReader("projXML.yaf");
+
 	init();	
+
+	
 
 	glutMainLoop();
 }

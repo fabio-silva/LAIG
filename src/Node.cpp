@@ -5,14 +5,22 @@
 
 Node::Node(char *id, bool root)
 {
-	
+		
 	this->id = id;
-	for(int i = 0; i<16; i++) matrix[i] = 0.0;
+	material = NULL;
+	
 
 	this->root = root;
+	parent = NULL;
+
+	glLoadIdentity();
+
+	glGetFloatv(GL_MODELVIEW_MATRIX, Matrix);
 
 	
+
 	
+
 }
 
 char *Node::getId()
@@ -22,12 +30,20 @@ char *Node::getId()
 
 char *Node::getParentId()
 {
+	if(parent == NULL) return NULL;
 	return parent->getId();
 }
 
 void Node::setParent(Node *parent)
 {
 	this->parent = parent;
+
+
+	/*glPushMatrix();
+	glLoadMatrixf(Matrix);
+	glMultMatrixf(parent->getMatrix());
+	glGetFloatv(GL_MODELVIEW_MATRIX, Matrix);
+	glPopMatrix();*/
 }
 
 void Node::setChildren(vector<Node*> children)
@@ -37,7 +53,7 @@ void Node::setChildren(vector<Node*> children)
 
 float *Node::getMatrix()
 {
-	return matrix;
+	return Matrix;
 }
 
 bool Node::isRoot()
@@ -48,13 +64,33 @@ void Node::addChild(Node *child)
 {
 	children.push_back(child);
 	child->setParent(this);
-	child->setMatrix(matrix);
-	child->setMaterial(material);
+	if(child->getMaterial() == NULL && child->getPrimitivas().size()!=0) 
+		{
+			child->setMaterial(material);
+			if(material != NULL )cout << "No " << child->getId() << " a herdar textura: " << material->getTexture()->getFilePath() << endl;
+			//if(material->getId() == NULL) cout << "
+	}
 }
 
 void Node::setMatrix(float mat[16])
 {
-	 memcpy(matrix, mat, 16*sizeof(float));
+
+	
+	memcpy(Matrix, mat, 16*sizeof(float));
+
+		
+		
+		
+	/*if(strcmp(id,"f3") == 0)
+	for(int i = 0;i<16;i++) 
+		{
+			cout <<Matrix[i]<< " " ;
+			if( i == 3 || i == 7 || i == 11) cout <<endl;
+
+		}*/
+	
+
+
 }
 
 vector <Node *> Node::getChildren()
@@ -64,16 +100,18 @@ vector <Node *> Node::getChildren()
 
 void Node::setMaterial(Material *m)
 {
-	
-	this->material = m;
+	/*if(m != NULL) 
+		{
+			cout << "No : " << id << ", material = " << m->getTexture()->getFilePath() << endl;
+			
+	}*/
+	material = m;
 }
 
-void Node::setPrimitiva(char *primitiva, vector<float> data, char *cullorder)
+void Node::addPrimitiva(Primitiva *p)
 {
 
-	this->primitiva = primitiva;
-	this->data = data;
-	this->cullorder = cullorder;
+	primitivas.push_back(p);
 }
 
 vector<float> Node::getData()
@@ -81,7 +119,26 @@ vector<float> Node::getData()
 	return data;
 }
 
-char *Node::getTipo()
+
+
+char *Node::getCullOrder()
 {
-	return primitiva;
+	return cullorder;
+}
+
+Node * Node::getParent()
+{
+	return parent;
+}
+
+vector<Primitiva *> Node::getPrimitivas()
+{
+	return primitivas;
+}
+
+Material *Node::getMaterial()
+{
+	//if(material == NULL) cout <<"nulo" <<endl;
+	return material;
+	
 }

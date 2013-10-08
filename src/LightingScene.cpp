@@ -155,7 +155,6 @@ void LightingScene::init() {
 	table = new myTable();
 	luzFagota1 = new myUnitCube();
 	luzFagota2 = new myUnitCube();
-	t1 = new Torus(8,25);
 	wall = new Plane(1, 10, 12, 2, -0.5);
 	windowWall = new WindowWall(3, 2.5, -0.75);
 	lamp = new myLamp(30, 30);

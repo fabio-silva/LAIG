@@ -8,6 +8,7 @@
 #include "CGFlight.h"
 #include "CGFaxis.h"
 #include "Node.h"
+#include <CGFcamera.h>
 using namespace std;
 class Cena{
 
@@ -22,6 +23,8 @@ public:
 	void setGraph(vector<Node *> graph);
 	~Cena();
 	char *getCullOrder();
+	void processNode(Node *n, Material *m);
+	void calculateMatrixes(Node *n);
 protected:
 	float backR, backG, backB, backAlpha;
 	char *drawmode, *shading, *cullface, *cullorder;
