@@ -28,13 +28,40 @@ void Cena::init()
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 
-	glEnable(GL_CULL_FACE);		
-	if(strcmp(cullface,"back") == 0) glCullFace(GL_BACK);
-	else glCullFace(GL_FRONT);
+		
+	if(strcmp(cullface,"back") == 0) 
+		{
+			glEnable(GL_CULL_FACE);	
+			glCullFace(GL_BACK);
+		
+			if(strcmp(drawmode, "fill") == 0) glPolygonMode(GL_BACK, GL_FILL);
+			else if(strcmp(drawmode, "line") == 0) glPolygonMode(GL_BACK, GL_LINE);
+		
+				else glPolygonMode(GL_BACK, GL_POINT);
+			
+		}
+	
+	else if(strcmp(cullface,"front") == 0)
+	{
+		glEnable(GL_CULL_FACE);	
+		glCullFace(GL_FRONT);
+		
+		if(strcmp(drawmode, "fill") == 0) glPolygonMode(GL_FRONT, GL_FILL);
+			else if(strcmp(drawmode, "line") == 0) glPolygonMode(GL_FRONT, GL_LINE);
+				else glPolygonMode(GL_FRONT, GL_POINT);
+	}
 
-	if(strcmp(drawmode, "fill") == 0) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	else if(strcmp(drawmode, "line") == 0) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+
+	else if(strcmp(cullface,"both")==0)
+	{
+		glEnable(GL_CULL_FACE);	
+		glCullFace(GL_FRONT_AND_BACK);
+
+		if(strcmp(drawmode, "fill") == 0) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			else if(strcmp(drawmode, "line") == 0) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				else glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	}
+
 
 	if(strcmp(shading, "flat") == 0) glShadeModel(GL_FLAT);
 	else glShadeModel(GL_SMOOTH);
@@ -369,11 +396,11 @@ void Cena::display()
 	glLoadIdentity();
 	//CGFscene::activeCamera->applyView();
 	//glFrustum(-1, 1, -1, 1, 1.5, 500.0 );
-	gluPerspective(90,1280/720,0.1,500);
+	gluPerspective(90,1280/720,0.3,300);
 	//glRotated(45,0,1,0);
 	glMatrixMode( GL_MODELVIEW);
 	//glLoadIdentity();
-	gluLookAt(10,10,20,0,0,0,0,10,0);
+	gluLookAt(30,15,20,0,0,0,0,10,0);
 	
 
 	axis.draw();

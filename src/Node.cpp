@@ -100,17 +100,19 @@ vector <Node *> Node::getChildren()
 
 void Node::setMaterial(Material *m)
 {
-	/*if(m != NULL) 
+	if(m != NULL) 
 		{
-			cout << "No : " << id << ", material = " << m->getTexture()->getFilePath() << endl;
+			//cout << "No : " << id << ", material = " << m->getTexture()->getFilePath() << endl;
 			
-	}*/
+	}
 	material = m;
 }
 
 void Node::addPrimitiva(Primitiva *p)
 {
-
+	/*cout << "No: " << id << " " ;
+	p->printTipo();
+	cout << endl;*/
 	primitivas.push_back(p);
 }
 

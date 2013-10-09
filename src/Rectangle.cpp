@@ -8,8 +8,9 @@ Rectangle::Rectangle(vector <float> data, char *cullorder) : Primitiva(data, cul
 void Rectangle::draw()
 {
 	glBegin(GL_POLYGON);
-	if(strcmp(cullorder, "CW") == 0) 
-	{
+	if(strcmp(cullorder, "CW") == 0  )
+	{ 
+
 
 
 		glTexCoord2d(0,1);
@@ -23,14 +24,22 @@ void Rectangle::draw()
 
 		glTexCoord2d(0,0);
 		glVertex2d(data[0], data[1]);
-
 
 	}
 
-	else
+	else 
 	{
 
+		
 
+		cout << "cullorder = " << cullorder << endl;
+
+		
+
+		glTexCoord2d(0,1);
+		glVertex2d(data[0],data[3]);
+		
+		
 		glTexCoord2d(0,0);
 		glVertex2d(data[0], data[1]);
 
@@ -39,10 +48,6 @@ void Rectangle::draw()
 
 		glTexCoord2d(1,1);
 		glVertex2d(data[2], data[3]);
-
-		glTexCoord2d(0,1);
-		glVertex2d(data[0],data[3]);
-
 	}
 
 	glEnd();
