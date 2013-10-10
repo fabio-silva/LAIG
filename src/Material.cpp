@@ -2,19 +2,19 @@
 #include <iostream>
 Material::Material(char *id, vector<float> emissive, vector<float> ambient, vector<float> diffuse, vector<float> specular, float shininess, int text_s, int text_t)
 {
-		
-		this->id = id;
-		this->emissive = emissive;
-		this->ambient = ambient;
-		this->diffuse = diffuse;
-		this->specular = specular;
-		this->shininess = shininess;
-		this->textref = textref;
-		this->text_s = text_s;
-		this->text_t = text_t;
 
-		
-	
+	this->id = id;
+	this->emissive = emissive;
+	this->ambient = ambient;
+	this->diffuse = diffuse;
+	this->specular = specular;
+	this->shininess = shininess;
+	this->textref = textref;
+	this->text_s = text_s;
+	this->text_t = text_t;
+
+
+
 }
 
 void Material::setTexture(Texture *t)
@@ -22,9 +22,8 @@ void Material::setTexture(Texture *t)
 	text = t;
 
 	if(t != NULL) 
-		{
-			
-			textura = new CGFtexture(t->getFilePath());
+	{
+		textura = new CGFtexture(t->getFilePath());
 	}
 
 }
@@ -37,20 +36,12 @@ char *Material::getId()
 
 void Material::apply()
 {
-	
- 
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, &emissive[0]);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, &diffuse[0]);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &shininess);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, &specular[0]);
-  
-	 
+	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, &emissive[0]);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, &diffuse[0]);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &shininess);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, &specular[0]);
 
-	// t->loadTexture(text->getFilePath());
-	 //cout << "A aplicar textura " << textura->name() <<endl;
-	 textura->apply();
- 
-     
+	textura->apply();
 }
 
 Texture *Material::getTexture()

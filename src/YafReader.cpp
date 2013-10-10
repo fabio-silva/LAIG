@@ -12,6 +12,8 @@ char* YafReader::findTextureById(char* id)
 			return textures[i]->getId();
 		}
 	}
+
+	return NULL;
 }
 
 Node* YafReader::findNodeById(char* id)
@@ -35,6 +37,7 @@ YafReader::YafReader(char* filename)
 	yafDocument = new TiXmlDocument(filename);
 	glMatrixMode(GL_MODELVIEW);
 	bool loadSuccessful = yafDocument->LoadFile();
+	char *shading = NULL;
 
 	if (loadSuccessful)
 	{
@@ -64,21 +67,21 @@ YafReader::YafReader(char* filename)
 	//Globals tag parsing
 	if (globalsElement == NULL)
 	{
-	//	cout << "Globals block element not found! Exiting!\n";
+		//	cout << "Globals block element not found! Exiting!\n";
 		exit(1);
 	}
 	else
 	{
 		//cout << "Processing Globals block\n";
 
-		char *background = NULL, *drawmode = NULL, *shading = NULL, *cullface = NULL, *cullorder = NULL;
+		char *background = NULL, *drawmode = NULL, *cullface = NULL, *cullorder = NULL;
 		float backgroundR, backgroundG, backgroundB, backgroundAlpha;
 
 		background = (char *) globalsElement->Attribute("background");
 
 		if(background && sscanf(background,"%f %f %f %f",&backgroundR, &backgroundG, &backgroundB, &backgroundAlpha) == 4)
 		{
-		//	cout << "Background values: " << backgroundR << " " << backgroundG << " " << backgroundB << " " << backgroundAlpha <<  endl;
+			//	cout << "Background values: " << backgroundR << " " << backgroundG << " " << backgroundB << " " << backgroundAlpha <<  endl;
 		}
 		else
 		{
@@ -90,7 +93,7 @@ YafReader::YafReader(char* filename)
 		//cout << "Drawmode value: " << drawmode << endl;
 
 		shading  =(char *) globalsElement->Attribute("shading");
-	//	cout << "Shading value: " << shading << endl;
+		//	cout << "Shading value: " << shading << endl;
 
 		cullface  =(char *) globalsElement->Attribute("cullface");
 		//cout << "Cullface value: " << cullface << endl;
@@ -117,6 +120,8 @@ YafReader::YafReader(char* filename)
 
 		initial = (char *) camerasElement->Attribute("initial");
 
+		scene.setInitialCameraId(initial);
+
 		//cout << "Inital camera value: " << initial << endl;
 
 		TiXmlElement* perspectiveElement = camerasElement->FirstChildElement();
@@ -128,22 +133,22 @@ YafReader::YafReader(char* filename)
 		{
 			if (strcmp(perspectiveElement->Value(),"perspective") == 0)
 			{
-		//		cout << "Processing Perspective block number " << i << "!" << endl;
+				//		cout << "Processing Perspective block number " << i << "!" << endl;
 
 				char *id = NULL, *pos = NULL, *target = NULL;
 				float near, far, angle, posX, posY, posZ, targetX, targetY, targetZ;
 
 				id = (char *) perspectiveElement->Attribute("id");
 
-			//	cout << "Perspective id: " << id << endl;
+				//	cout << "Perspective id: " << id << endl;
 
 				if (perspectiveElement->QueryFloatAttribute("near",&near)==TIXML_SUCCESS)
 				{
-			//		cout << "Near value: " << near << endl;
+					//		cout << "Near value: " << near << endl;
 				}
 				else
 				{
-				//	cout << "Error reading the Near value!Exiting" << endl;
+					//	cout << "Error reading the Near value!Exiting" << endl;
 					//exit(1);
 				}
 
@@ -153,7 +158,7 @@ YafReader::YafReader(char* filename)
 				}
 				else
 				{
-				//	cout << "Error reading the Far value!Exiting" << endl;
+					//	cout << "Error reading the Far value!Exiting" << endl;
 					//exit(1);
 				}
 
@@ -190,6 +195,27 @@ YafReader::YafReader(char* filename)
 					//cout << "Error parsing the Target values" << endl;
 					//exit(1);
 				}
+
+				vector<float> position;
+				vector<float> tar;
+
+				position.push_back(posX);
+				position.push_back(posY);
+				position.push_back(posZ);
+
+				tar.push_back(targetX);
+				tar.push_back(targetY);
+				tar.push_back(targetZ);
+
+
+
+				Perspective* p = new Perspective(id,near,far,angle,position,tar);
+				scene.addSceneCamera(p);
+				if (strcmp(id,scene.getInitialCameraId()) == 0)
+				{
+					scene.setActiveCamera(p);
+				}
+
 			}
 
 			i++;
@@ -212,15 +238,15 @@ YafReader::YafReader(char* filename)
 
 				id = (char *) orthoElement->Attribute("id");
 
-			//	cout << "Id: " << id << endl;
+				//	cout << "Id: " << id << endl;
 
 				if (orthoElement->QueryFloatAttribute("near",&near)==TIXML_SUCCESS)
 				{
-				//	cout << "Near value: " << near << endl;
+					//	cout << "Near value: " << near << endl;
 				}
 				else
 				{
-				//	cout << "Error reading the Near value!Exiting" << endl;
+					//	cout << "Error reading the Near value!Exiting" << endl;
 					//exit(1);
 				}
 
@@ -270,8 +296,15 @@ YafReader::YafReader(char* filename)
 				}
 				else
 				{
-				//	cout << "Error reading the Bottom value!Exiting" << endl;
+					//	cout << "Error reading the Bottom value!Exiting" << endl;
 					//exit(1);
+				}
+
+				Ortho* o = new Ortho(id,near,far,left,right,top,bottom);
+
+				if (strcmp(id,scene.getInitialCameraId()) == 0)
+				{
+					scene.setActiveCamera(o);
 				}
 
 				i++;
@@ -320,7 +353,7 @@ YafReader::YafReader(char* filename)
 		if (strcmp(l,"true") == 0)
 		{
 			local = true;
-		//	cout << "Local set as true!" << endl;
+			//	cout << "Local set as true!" << endl;
 		}
 		else if (strcmp(l,"false") == 0)
 		{
@@ -338,16 +371,16 @@ YafReader::YafReader(char* filename)
 		if (strcmp(e,"true") == 0)
 		{
 			enabled = true;
-		//	cout << "Lighting enabled!" << endl;
+			//	cout << "Lighting enabled!" << endl;
 		}
 		else if (strcmp(e,"false") == 0)
 		{
 			enabled = false;
-		//	cout << "Lighting disabled!" << endl;
+			//	cout << "Lighting disabled!" << endl;
 		}
 		else
 		{
-		//	cout << "Error processing the Enabled attribute!Exiting!" << endl;
+			//	cout << "Error processing the Enabled attribute!Exiting!" << endl;
 			//exit(1);
 		}
 
@@ -355,7 +388,7 @@ YafReader::YafReader(char* filename)
 
 		if(ambient && sscanf(ambient,"%f %f %f %f",&ambientR, &ambientG, &ambientB, &ambientAlpha) == 4)
 		{
-	//		cout << "Ambient values: " << ambientR << " " << ambientG << " " << ambientB << " " << ambientAlpha << endl;
+			//		cout << "Ambient values: " << ambientR << " " << ambientG << " " << ambientB << " " << ambientAlpha << endl;
 
 		}
 		else
@@ -398,7 +431,7 @@ YafReader::YafReader(char* filename)
 				if (strcmp(e,"true") == 0)
 				{
 					enabled = true;
-				//	cout << "Omni light number " << i << " enabled!" << endl;
+					//	cout << "Omni light number " << i << " enabled!" << endl;
 				}
 				else if (strcmp(e,"false") == 0)
 				{
@@ -427,7 +460,7 @@ YafReader::YafReader(char* filename)
 
 				if(ambient && sscanf(ambient,"%f %f %f %f",&ambientR, &ambientG, &ambientB, &ambientAlpha) == 4)
 				{
-				//	cout << "Ambient values: " << ambientR << " " << ambientG << " " << ambientB << " " << ambientAlpha << endl;
+					//	cout << "Ambient values: " << ambientR << " " << ambientG << " " << ambientB << " " << ambientAlpha << endl;
 				}
 				else
 				{
@@ -451,11 +484,11 @@ YafReader::YafReader(char* filename)
 
 				if(specular && sscanf(specular,"%f %f %f %f",&specularR, &specularG, &specularB, &specularAlpha) == 4)
 				{
-				//	cout << "Specular values: " << specularR << " " << specularG << " " << specularB << " " << specularAlpha << endl;
+					//	cout << "Specular values: " << specularR << " " << specularG << " " << specularB << " " << specularAlpha << endl;
 				}
 				else
 				{
-				//	cout << "Error parsing the Specular values!Exiting!" << endl;
+					//	cout << "Error parsing the Specular values!Exiting!" << endl;
 					//exit(1);
 				}
 
@@ -510,7 +543,7 @@ YafReader::YafReader(char* filename)
 
 				id = (char *) spotElement->Attribute("id");
 
-			//	cout << "Id: " << id << endl;
+				//	cout << "Id: " << id << endl;
 
 				e = (char *) spotElement->Attribute("enabled");
 
@@ -526,7 +559,7 @@ YafReader::YafReader(char* filename)
 				}
 				else
 				{
-				//	cout << "Error processing the Enabled attribute!Exiting!" << endl;
+					//	cout << "Error processing the Enabled attribute!Exiting!" << endl;
 					//exit(1);
 				}
 
@@ -584,17 +617,17 @@ YafReader::YafReader(char* filename)
 				}
 				else
 				{
-				//	cout << "Error reading the Angle value!Exiting" << endl;
+					//	cout << "Error reading the Angle value!Exiting" << endl;
 					//exit(1);
 				}
 
 				if (spotElement->QueryFloatAttribute("exponent",&exponent)==TIXML_SUCCESS)
 				{
-				//	cout << "Exponent value: " << exponent << endl;
+					//	cout << "Exponent value: " << exponent << endl;
 				}
 				else
 				{
-				//	cout << "Error reading the Exponent value!Exiting" << endl;
+					//	cout << "Error reading the Exponent value!Exiting" << endl;
 					//exit(1);
 				}
 
@@ -602,7 +635,7 @@ YafReader::YafReader(char* filename)
 
 				if(direction && sscanf(direction,"%f %f %f",&directionX, &directionY, &directionZ) == 3)
 				{
-				//	cout << "Direction values: " << directionX << " " << directionY << " " << directionZ << endl;
+					//	cout << "Direction values: " << directionX << " " << directionY << " " << directionZ << endl;
 				}
 				else
 				{
@@ -678,11 +711,11 @@ YafReader::YafReader(char* filename)
 
 	//Appearances tag processing
 
-//	cout << endl<< "---------------------------------------" <<endl<< "Processing Appearance block!" << endl;
+	//	cout << endl<< "---------------------------------------" <<endl<< "Processing Appearance block!" << endl;
 
 	if(appearancesElement == NULL)
 	{
-	//	cout << "Appearance block element not found!Exiting" << endl;
+		//	cout << "Appearance block element not found!Exiting" << endl;
 		exit(1);
 	}
 	else
@@ -700,7 +733,7 @@ YafReader::YafReader(char* filename)
 			float difA, difB, difC, difD;
 			float specA, specB, specC, specD;
 			float shin;
-			float textRef, textL_S, textL_T;
+			float textRef, textL_S = 0, textL_T = 0;
 
 			id = (char *)appElement->Attribute("id");
 
@@ -767,11 +800,11 @@ YafReader::YafReader(char* filename)
 				for(int i = 0; i<textures.size() ; i++)
 
 					if( strcmp(textures[i]->getId(), textureref) == 0) 
-						{
-							/*cout << "Textura : " << id << " -> " << textureref << endl;
-							getchar();*/
-							mat->setTexture(textures[i]);
-							
+					{
+						/*cout << "Textura : " << id << " -> " << textureref << endl;
+						getchar();*/
+						mat->setTexture(textures[i]);
+
 					}
 
 
@@ -809,7 +842,7 @@ YafReader::YafReader(char* filename)
 
 			nodeId = (char *) nodeElement->Attribute("id");
 			Node *nd;
-			
+
 			if(strcmp(rootId, nodeId) == 0) nd = new Node(nodeId, true);
 
 			else nd = new Node(nodeId, false);
@@ -817,7 +850,7 @@ YafReader::YafReader(char* filename)
 
 			cout << "Processing Node number " << i << " id: " << nodeId << endl << endl;
 
-			
+
 
 			//Children tags(transforms, appearances, primitives, etc.) processing
 
@@ -834,7 +867,7 @@ YafReader::YafReader(char* filename)
 			{
 				while(childrenElemenent)
 				{
-					
+
 					if (strcmp(childrenElemenent->Value(), "transforms") == 0)
 					{
 						float m[16] = {0};
@@ -851,7 +884,7 @@ YafReader::YafReader(char* filename)
 							{
 								char *translate = NULL;
 								float translateX, translateY, translateZ;
-								
+
 
 								translate = (char *) transformTypeElement->Attribute("to");
 
@@ -860,12 +893,12 @@ YafReader::YafReader(char* filename)
 									//cout << "Translate values: " << translateX << " " << translateY << " " << translateZ << endl;
 								}
 
-								
+
 								glTranslatef(translateX, translateY, translateZ);
 
-								
 
-								
+
+
 								//nd->translate(m);
 								//Chamar função de translação aqui
 							}
@@ -897,17 +930,17 @@ YafReader::YafReader(char* filename)
 								}
 
 								if (strcmp(axis,"x") == 0) glRotatef(angle,1,0,0);
-								
+
 								else if (strcmp(axis,"y") == 0) glRotatef(angle, 0, 1, 0);
-								
+
 								else if (strcmp(axis,"z") == 0) glRotatef(angle, 0,0,1);
-									
-								
+
+
 
 								//Chamar função de rotação aqui
 
 								//nd->rotate(m);
-								
+
 							}
 
 							if (strcmp(transformTypeElement->Value(),"scale") == 0)
@@ -929,15 +962,15 @@ YafReader::YafReader(char* filename)
 
 							//Chamar função de escalamento aqui
 
-							
+
 
 							//nd->setMatrix(m);
 
 							transformTypeElement = transformTypeElement->NextSiblingElement();
 						}
-						
-						
-						
+
+
+
 						glGetFloatv(GL_MODELVIEW_MATRIX,m);
 						nd->setMatrix(m);
 					}
@@ -954,7 +987,7 @@ YafReader::YafReader(char* filename)
 						{
 							if( strcmp(materials[i]->getId(), id) == 0)
 							{
-								
+
 
 								nd->setMaterial(materials[i]);
 							}
@@ -981,7 +1014,7 @@ YafReader::YafReader(char* filename)
 
 							if (strcmp(childrenTypeElement->Value(),"rectangle") == 0)
 							{
-								
+
 
 								cout << endl << "Rectangle tag!" << endl;
 
@@ -1010,7 +1043,7 @@ YafReader::YafReader(char* filename)
 								data.push_back((float)xy2X);
 								data.push_back((float)xy2Y);
 
-								Rectangle *r = new Rectangle(data, cullorder);
+								Rectangle *r = new Rectangle(data, cullorder, shading);
 
 								nd->addPrimitiva(r);
 
@@ -1134,7 +1167,7 @@ YafReader::YafReader(char* filename)
 							if (strcmp(childrenTypeElement->Value(),"sphere") == 0)
 							{
 								//cout << endl << "Sphere tag!" << endl;
-								
+
 								float radius;
 								int slices, stacks;
 
@@ -1164,7 +1197,7 @@ YafReader::YafReader(char* filename)
 								}
 								else
 								{
-								//	cout << "Error processing the Sphere Stacks value!Exiting!" << endl;
+									//	cout << "Error processing the Sphere Stacks value!Exiting!" << endl;
 									//exit(1);
 								}
 
@@ -1185,7 +1218,7 @@ YafReader::YafReader(char* filename)
 
 								if (childrenTypeElement->QueryFloatAttribute("inner",&inner) == TIXML_SUCCESS)
 								{
-								//	cout << "Torus Inner value: " << inner << endl;
+									//	cout << "Torus Inner value: " << inner << endl;
 								}
 								else
 								{
@@ -1209,7 +1242,7 @@ YafReader::YafReader(char* filename)
 								}
 								else
 								{
-								//	cout << "Error processing the Torus Slices value!Exiting!" << endl;
+									//	cout << "Error processing the Torus Slices value!Exiting!" << endl;
 									//exit(1);
 								}
 
@@ -1235,7 +1268,7 @@ YafReader::YafReader(char* filename)
 
 							if (strcmp(childrenTypeElement->Value(),"noderef") == 0)
 							{
-							//	cout << endl << "Noderef tag!" << endl;
+								//	cout << endl << "Noderef tag!" << endl;
 
 								char *id = NULL;
 
@@ -1255,8 +1288,8 @@ YafReader::YafReader(char* filename)
 								cout << "Noderef id: " << id << endl;
 							}
 
-						
-							
+
+
 
 							childrenTypeElement = childrenTypeElement->NextSiblingElement();
 						}
@@ -1275,8 +1308,8 @@ YafReader::YafReader(char* filename)
 
 	/*for(int i = 0; i<noderefs_vec.size();i++)
 	{
-		cout << "No nr." << i + 1 << " " << noderefs_vec[i][0] << " -> " << noderefs_vec[i][1] << endl;
-		getchar();
+	cout << "No nr." << i + 1 << " " << noderefs_vec[i][0] << " -> " << noderefs_vec[i][1] << endl;
+	getchar();
 	}*/
 	for (int i = 0; i < noderefs_vec.size(); i++)
 	{
@@ -1285,19 +1318,17 @@ YafReader::YafReader(char* filename)
 
 		if(no_referenciado != NULL) cout << no_referenciado->getId() << "  "  ;
 		//No do noderef
-		
-		Node* no_referencia = findNodeById(noderefs_vec[i][1]);
-		
-		if(no_referencia != NULL) cout << " ->" <<no_referencia->getId() << endl;
-		//getchar();
-		
 
+		Node* no_referencia = findNodeById(noderefs_vec[i][1]);
+
+		cout <<" PAI :" << no_referenciado->getId() << " -> " <<no_referencia->getId() << endl;
+		//getchar();
 		//no_refenciado->setPrimitiva(no_referencia->getId(), no_referencia->getData(), no_referencia->getCullOrder());
 
 		no_referenciado->addChild(no_referencia);
 
-		cout << "ok" << endl;
-		
+
+
 	}
 
 
@@ -1305,15 +1336,15 @@ YafReader::YafReader(char* filename)
 
 	/*for(int i  = 0;i<graph.size();i++) 
 	{
-		if(graph[i]->getParentId() == NULL && !graph[i]->isRoot())
-		{
-			for(int j = 0; j<graph.size();j++)
-			{
-				if(graph[j]->isRoot()) graph[j]->addChild(graph[i]);
-			}
-		}
+	if(graph[i]->getParentId() == NULL && !graph[i]->isRoot())
+	{
+	for(int j = 0; j<graph.size();j++)
+	{
+	if(graph[j]->isRoot()) graph[j]->addChild(graph[i]);
+	}
+	}
 	}*/
-		scene.setGraph(graph);
+	scene.setGraph(graph);
 
 }
 

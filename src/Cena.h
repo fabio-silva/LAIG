@@ -8,7 +8,10 @@
 #include "CGFlight.h"
 #include "CGFaxis.h"
 #include "Node.h"
-#include <CGFcamera.h>
+#include "Camera.h"
+#include "Perspective.h"
+#include "Ortho.h"
+
 using namespace std;
 class Cena{
 
@@ -25,6 +28,11 @@ public:
 	char *getCullOrder();
 	void processNode(Node *n, Material *m);
 	void calculateMatrixes(Node *n);
+	void setInitialCameraId(char* initialCameraId);
+	void addSceneCamera(Camera* camera);
+	void setActiveCamera(Camera* camera);
+	char* getInitialCameraId();
+
 protected:
 	float backR, backG, backB, backAlpha;
 	char *drawmode, *shading, *cullface, *cullorder;
@@ -34,7 +42,9 @@ protected:
 	CGFlight *light0;
 	CGFaxis axis;
 	vector<Node*> graph;
-
+	vector <Camera*> scene_cameras;
+	Camera* activeCamera;
+	char* initialCameraId;
 };
 
 #endif

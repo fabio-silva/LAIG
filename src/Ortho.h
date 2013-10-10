@@ -7,9 +7,11 @@ class Ortho:public Camera{
 public:
 
 	Ortho(char *id, float near, float far, float left, float right, float top, float bottom);
+	void render();
 
 protected:
 
-	float left, right, top, bottom;
+	char* id;
+	float near,far,left, right, top, bottom;
 };
 #endif

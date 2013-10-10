@@ -81,14 +81,6 @@ void Node::setMatrix(float mat[16])
 		
 		
 		
-	/*if(strcmp(id,"f3") == 0)
-	for(int i = 0;i<16;i++) 
-		{
-			cout <<Matrix[i]<< " " ;
-			if( i == 3 || i == 7 || i == 11) cout <<endl;
-
-		}*/
-	
 
 
 }
@@ -102,7 +94,8 @@ void Node::setMaterial(Material *m)
 {
 	if(m != NULL) 
 		{
-			//cout << "No : " << id << ", material = " << m->getTexture()->getFilePath() << endl;
+		/*	cout << "No : " << id << ", material = " << m->getTexture()->getFilePath() << endl;
+			getchar();*/
 			
 	}
 	material = m;
