@@ -10,6 +10,5 @@ public:
 
 private:
 	int divisions;
-
 };
 

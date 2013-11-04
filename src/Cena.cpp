@@ -120,11 +120,7 @@ void Cena::init()
 			glEndList();
 			cout << "No " << graph[i]->getId() << " fechou lista " << endl;
 		}
-
-
 	}
-
-
 }
 
 void Cena::display()

@@ -45,7 +45,6 @@ Patch::Patch(int order, int u, int v, char *compute, char *cullorder):Primitiva(
 
 }
 
-
 void Patch::addControPoint(GLfloat *ctrl)
 {
 	memcpy(ctrlPoints[matrixPos], ctrl, sizeof(GLfloat) * 3);
@@ -54,7 +53,7 @@ void Patch::addControPoint(GLfloat *ctrl)
 
 void Patch::draw()
 {
-	glMap2f(GL_MAP2_VERTEX_3, 0, 1, 3, order + 1, 0, 1, 6, order + 1, &ctrlPoints[0][0]);
+	glMap2f(GL_MAP2_VERTEX_3, 0, 1, 0, order + 1, 0, 1, 3, order + 1, &ctrlPoints[0][0]);
 
 	glCullFace(GL_CW);
 	glEnable(GL_AUTO_NORMAL);
@@ -65,7 +64,4 @@ void Patch::draw()
 
 	glMapGrid2f(u, 0, 1, v, 0, 1);
 	glEvalMesh2(GL_FILL, 0, u, 0, v); //Trocar GL_MODE
-
-
-
 }
