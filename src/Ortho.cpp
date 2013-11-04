@@ -1,8 +1,7 @@
 #include "Ortho.h"
 
-Ortho::Ortho(char *id, float near, float far, float left, float right, float top, float bottom):Camera()
+Ortho::Ortho(char *id, float near, float far, float left, float right, float top, float bottom):Camera(id)
 {
-	this->id = id;
 	this->near = near;
 	this->far = far;
 	this->left = left;

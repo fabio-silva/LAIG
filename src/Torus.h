@@ -1,8 +1,9 @@
 #pragma once
+
 #include "Primitiva.h"
 
-
 class Torus:public Primitiva{
+
 public:
 	Torus(vector<float> data,char *cullorder);
 	void draw();
@@ -20,8 +21,7 @@ protected:
 	float n3[3];
 	float innerRadius;
 	float outerRadius;
-
-	vector< float*> vertices;
-	vector< float*> normals;
-	vector< float *> texturesV;
+	vector< vector<float>> vertices;
+	vector< vector<float>> normals;
+	vector< vector<float>> texturesV;
 };

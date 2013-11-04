@@ -1,17 +1,33 @@
 #include "Light.h"
 
-Light::Light(bool doublesided, bool local, bool enabled, vector<float> ambient):doublesided(doublesided), local(local),enabled(enabled), ambient(ambient)
+Light::Light(vector<float> location, vector<float> ambient, vector<float> diffuse, vector<float> specular, char *id, bool enabled)
 {
+	this->location = location;
+	this->ambient = ambient;
+	this->diffuse = diffuse;
+	this->specular = specular;
+	this->id = id;
+	this->enabled = enabled;
 }
 
-bool Light::isDoubleSided()
+vector<float> Light::getLocation()
 {
-	return doublesided;
+	return location;
 }
 
-bool Light::isLocal()
+vector<float> Light::getAmbient()
 {
-	return local;
+	return ambient;
+}
+
+vector<float> Light::getDiffuse()
+{
+	return diffuse;
+}
+
+vector<float> Light::getSpecular()
+{
+	return specular;
 }
 
 bool Light::isEnabled()
@@ -19,7 +35,17 @@ bool Light::isEnabled()
 	return enabled;
 }
 
-vector<float> Light::getAmbient()
+char *Light::getId()
 {
-	return ambient;
+	return id;
+}
+
+void Light::setLightnr(GLenum nr)
+{
+	lightnr = nr;
+}
+
+GLenum Light::getLightNr()
+{
+	return lightnr;
 }

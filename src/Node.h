@@ -6,8 +6,8 @@
 #include <vector>
 #include <string>
 #include "Primitiva.h"
-using namespace std;
 
+using namespace std;
 
 class Node
 {
@@ -29,6 +29,10 @@ public:
 	char* getCullOrder();
 	Node *getParent();
 	vector<Primitiva *> getPrimitivas();
+	void useDisplayList(bool d);
+	bool isUsingDisplayList();
+	void setListId(int id);
+	int getListId();
 
 protected:
 	float preMatrix[16];
@@ -41,6 +45,8 @@ protected:
 	vector<Primitiva *> primitivas;
 	char *cullorder;
 	vector<float> data;
+	bool usingDisplayList;
+	int listId;
 };
 
 #endif

@@ -16,6 +16,9 @@
 #include "Cylinder.h"
 #include "Sphere.h"
 #include "Torus.h"
+#include "AmbientLight.h"
+#include "Plane.h"
+#include "Patch.h"
 using namespace std;
 
 class YafReader
@@ -26,7 +29,6 @@ public:
 	~YafReader();
 	Cena scene;
 protected:
-
 	char* findTextureById(char* id);
 	Node* findNodeById(char* id);
 
@@ -42,7 +44,6 @@ protected:
 	vector<Material*> materials;
 	vector< vector <char*>> noderefs_vec;
 	vector<Node *> graph;
-	
 };
 
 #endif

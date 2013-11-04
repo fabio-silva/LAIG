@@ -18,8 +18,11 @@ void Cena::setGlobals(float backR, float backG, float backB, float backAlpha, ch
 	this->cullorder = cullorder;
 
 	activeCamera = NULL;
+}
 
-	std::cout << "bckgrd = " << backR << " " << backG << " " << backB << " " << backAlpha << std::endl;
+vector <Camera*> Cena::getCameras()
+{
+	return scene_cameras;
 }
 
 void Cena::setInitialCameraId(char* initialCameraId)
@@ -32,9 +35,9 @@ void Cena::addSceneCamera(Camera* camera)
 	scene_cameras.push_back(camera);
 }
 
-void Cena::setActiveCamera(Camera* camera)
+void Cena::setActiveCamera(Camera *c)
 {
-	activeCamera = camera;
+	activeCamera = c;
 }
 
 char* Cena::getInitialCameraId()
@@ -44,47 +47,13 @@ char* Cena::getInitialCameraId()
 
 void Cena::init()
 {
-	//glutPostRedisplay();
+	
 
 	glClearColor(backR,backG,backB,backAlpha); 
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
-
-		
-	if(strcmp(cullface,"back") == 0) 
-		{
-			glEnable(GL_CULL_FACE);	
-			glCullFace(GL_BACK);
-		
-			if(strcmp(drawmode, "fill") == 0) glPolygonMode(GL_BACK, GL_FILL);
-			else if(strcmp(drawmode, "line") == 0) glPolygonMode(GL_BACK, GL_LINE);
-		
-				else glPolygonMode(GL_BACK, GL_POINT);
-			
-		}
-	
-	else if(strcmp(cullface,"front") == 0)
-	{
-		glEnable(GL_CULL_FACE);	
-		glCullFace(GL_FRONT);
-		
-		if(strcmp(drawmode, "fill") == 0) glPolygonMode(GL_FRONT, GL_FILL);
-			else if(strcmp(drawmode, "line") == 0) glPolygonMode(GL_FRONT, GL_LINE);
-				else glPolygonMode(GL_FRONT, GL_POINT);
-	}
-
-
-	else if(strcmp(cullface,"both")==0)
-	{
-		glEnable(GL_CULL_FACE);	
-		glCullFace(GL_FRONT_AND_BACK);
-
-		if(strcmp(drawmode, "fill") == 0) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			else if(strcmp(drawmode, "line") == 0) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				else glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-	}
-
+	glEnable(GL_NORMALIZE);
 
 	if(strcmp(shading, "flat") == 0) glShadeModel(GL_FLAT);
 	else glShadeModel(GL_SMOOTH);
@@ -102,344 +71,199 @@ void Cena::init()
 
 	if(ambient_light->isEnabled()) glLightModelfv(GL_LIGHT_MODEL_AMBIENT, &ambient_light->getAmbient()[0]);
 
-	for (int i = 0; i < spots.size(); i++)
+
+	for (unsigned int i = 0; i < omnis.size(); i++)
 	{
-		if (spots[i]->isEnabled())
-		{
-			switch(n_lights)
-			{
-			case 0:
-				glLightfv(GL_LIGHT0, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT0, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT0, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT0, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT0);
-				break;
-			case 1:
-				glLightfv(GL_LIGHT1, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT1, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT1, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT1, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT1);
-				break;
-			case 2:
-				glLightfv(GL_LIGHT2, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT2, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT2, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT2, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT2);
-				break;
-			case 3:
-				glLightfv(GL_LIGHT3, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT3, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT3, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT3, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT3);
-				break;
-			case 4:
-				glLightfv(GL_LIGHT4, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT4, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT4, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT4, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT4, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT4, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT4);
-				break;
-			case 5:
-				glLightfv(GL_LIGHT5, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT5, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT5, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT5, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT5, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT5, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT5);
-				break;
-			case 6:
-				glLightfv(GL_LIGHT6, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT6, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT6, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT6, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT6, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT6, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT6);
-				break;
-			case 7:
-				glLightfv(GL_LIGHT7, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT7, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT7, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT7, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT7, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT7, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT7, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glEnable(GL_LIGHT7);
-				break;
-			}
-			n_lights++;
-		}
-		else
-		{
-			switch(n_lights)
-			{
-			case 0:
-				glLightfv(GL_LIGHT0, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT0, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT0, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT0, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT0);
-				break;
-			case 1:
-				glLightfv(GL_LIGHT1, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT1, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT1, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT1, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT1);
-				break;
-			case 2:
-				glLightfv(GL_LIGHT2, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT2, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT2, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT2, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT2, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT2);
-				break;
-			case 3:
-				glLightfv(GL_LIGHT3, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT3, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT3, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT3, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT3, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT3);
-				break;
-			case 4:
-				glLightfv(GL_LIGHT4, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT4, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT4, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT4, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT4, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT4, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT4);
-				break;
-			case 5:
-				glLightfv(GL_LIGHT5, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT5, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT5, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT5, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT5, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT5, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT5);
-				break;
-			case 6:
-				glLightfv(GL_LIGHT6, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT6, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT6, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT6, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT6, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT6, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT6);
-				break;
-			case 7:
-				glLightfv(GL_LIGHT7, GL_AMBIENT, &spots[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT7, GL_DIFFUSE, &spots[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT7, GL_SPECULAR, &spots[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT7, GL_POSITION, &spots[i]->getLocation()[0]);
-				glLightfv(GL_LIGHT7, GL_SPOT_DIRECTION, &spots[i]->getDirection()[0]);
-				glLightf(GL_LIGHT7, GL_SPOT_CUTOFF, spots[i]->getAngle());
-				glLightf(GL_LIGHT7, GL_SPOT_EXPONENT, spots[i]->getExponent());
-				glDisable(GL_LIGHT7);
-				break;
-			}
-			n_lights++;
-		}
+		float pos[3] = {omnis[i]->getLocation()[0], omnis[i]->getLocation()[1], omnis[i]->getLocation()[2]};
+		float ambient[3] = {omnis[i]->getAmbient()[0], omnis[i]->getAmbient()[1], omnis[i]->getAmbient()[2]};
+		float diffuse[3] = {omnis[i]->getDiffuse()[0], omnis[i]->getDiffuse()[1], omnis[i]->getDiffuse()[2]};
+		float specular[3] = {omnis[i]->getSpecular()[0], omnis[i]->getSpecular()[1], omnis[i]->getSpecular()[2]};
+
+		glLightfv(omnis[i]->getLightNr(), GL_AMBIENT, ambient);
+		glLightfv(omnis[i]->getLightNr(), GL_DIFFUSE, diffuse);
+		glLightfv(omnis[i]->getLightNr(), GL_SPECULAR, specular);
+		glLightfv(omnis[i]->getLightNr(), GL_POSITION, pos);
+
+
+		if(omnis[i]->isEnabled()) glEnable(omnis[i]->getLightNr());
+		else glDisable(omnis[i]->getLightNr());
 	}
 
-	for (int i = 0; i < omnis.size(); i++)
+	for (unsigned int i = 0; i < spots.size(); i++)
 	{
-		if (omnis[i]->isEnabled())
-		{
-			switch(n_lights)
-			{
-			case 0:
-				glLightfv(GL_LIGHT0, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT0, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT0, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT0, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT0);
-				break;
-			case 1:
-				glLightfv(GL_LIGHT1, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT1, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT1, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT1, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT1);
-				break;
-			case 2:
-				glLightfv(GL_LIGHT2, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT2, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT2, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT2, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT2);
-				break;
-			case 3:
-				glLightfv(GL_LIGHT3, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT3, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT3, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT3, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT3);
-				break;
-			case 4:
-				glLightfv(GL_LIGHT4, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT4, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT4, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT4, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT4);
-				break;
-			case 5:
-				glLightfv(GL_LIGHT5, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT5, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT5, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT5, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT5);
-				break;
-			case 6:
-				glLightfv(GL_LIGHT6, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT6, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT6, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT6, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT6);
-				break;
-			case 7:
-				glLightfv(GL_LIGHT7, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT7, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT7, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT7, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glEnable(GL_LIGHT7);
-				break;
-			}
-			n_lights++;
-		}
-		else
-		{
-			switch(n_lights)
-			{
-			case 0:
-				glLightfv(GL_LIGHT0, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT0, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT0, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT0, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT0);
-				break;
-			case 1:
-				glLightfv(GL_LIGHT1, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT1, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT1, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT1, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT1);
-				break;
-			case 2:
-				glLightfv(GL_LIGHT2, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT2, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT2, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT2, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT2);
-				break;
-			case 3:
-				glLightfv(GL_LIGHT3, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT3, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT3, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT3, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT3);
-				break;
-			case 4:
-				glLightfv(GL_LIGHT4, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT4, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT4, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT4, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT4);
-				break;
-			case 5:
-				glLightfv(GL_LIGHT5, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT5, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT5, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT5, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT5);
-				break;
-			case 6:
-				glLightfv(GL_LIGHT6, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT6, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT6, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT6, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT6);
-				break;
-			case 7:
-				glLightfv(GL_LIGHT7, GL_AMBIENT, &omnis[i]->getAmbient()[0]);
-				glLightfv(GL_LIGHT7, GL_DIFFUSE, &omnis[i]->getDiffuse()[0]);
-				glLightfv(GL_LIGHT7, GL_SPECULAR, &omnis[i]->getSpecular()[0]);
-				glLightfv(GL_LIGHT7, GL_POSITION, &omnis[i]->getLocation()[0]);
-				glDisable(GL_LIGHT7);
-				break;
-			}
-			n_lights++;
-		}
+
+		float pos[3] = {spots[i]->getLocation()[0], spots[i]->getLocation()[1], spots[i]->getLocation()[2]};
+		float ambient[3] = {spots[i]->getAmbient()[0], spots[i]->getAmbient()[1], spots[i]->getAmbient()[2]};
+		float diffuse[3] = {spots[i]->getDiffuse()[0], spots[i]->getDiffuse()[1], spots[i]->getDiffuse()[2]};
+		float specular[3] = {spots[i]->getSpecular()[0], spots[i]->getSpecular()[1], spots[i]->getSpecular()[2]};
+		float direction[3] = {spots[i]->getDirection()[0], spots[i]->getDirection()[1], spots[i]->getDirection()[2]};
+
+		glLightfv(spots[i]->getLightNr(), GL_AMBIENT, ambient);
+		glLightfv(spots[i]->getLightNr(), GL_DIFFUSE, diffuse);
+		glLightfv(spots[i]->getLightNr(), GL_SPECULAR, specular);
+		glLightfv(spots[i]->getLightNr(), GL_POSITION, pos);
+		glLightfv(spots[i]->getLightNr(), GL_SPOT_DIRECTION, direction);
+		glLightf(spots[i]->getLightNr(), GL_SPOT_CUTOFF, spots[i]->getAngle());
+		glLightf(spots[i]->getLightNr(), GL_SPOT_EXPONENT, spots[i]->getExponent());
+
+		if(spots[i]->isEnabled()) glEnable(spots[i]->getLightNr());
+		else glDisable(spots[i]->getLightNr());
 	}
+
+
+	for(unsigned int i = 0; i<graph.size(); i++) 
+	{
+
+		if(!graph[i]->isRoot()) initLists(graph[i], NULL);
+		if(graph[i]->isUsingDisplayList()) 
+		{
+			glEndList();
+			cout << "No " << graph[i]->getId() << " fechou lista " << endl;
+		}
+
+
+	}
+
+
 }
 
 void Cena::display()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	/*glMatrixMode( GL_PROJECTION);
-	glLoadIdentity();
-	//CGFscene::activeCamera->applyView();
-	glFrustum(-1, 1, -1, 1, 1.5, 500.0 );
-	gluPerspective(90,1280/720,0.3,300);
-	//glRotated(45,0,1,0);
-	glMatrixMode( GL_MODELVIEW);
-	//glLoadIdentity();
-	gluLookAt(30,15,20,0,0,0,0,1,0);*/
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 
 	activeCamera->render();
-	cout << "CAMARA ACTIVA " << endl;
 
-	//axis.draw();
+	for(unsigned int i = 0; i<graph.size(); i++) if(graph[i]->isRoot()) 
+	{
+		processNode(graph[i], NULL);
 
+	}
+	axis.draw();
 
-	for(int i = 0; i<graph.size(); i++) if(graph[i]->isRoot()) 
-		{
-			processNode(graph[i], NULL);
-		}
-
+	glEnable(GL_TEXTURE_2D);
 	glutSwapBuffers();
 }
 
-void Cena::setAmbient(Light *ambient)
+
+void Cena::initLists(Node *n, Material *m)
+{
+	Material *actualM;
+
+	if(n->getMaterial() != NULL) actualM = n->getMaterial();
+	else actualM = m;
+
+	if(n->isUsingDisplayList()) 
+	{
+		cout << "No " << n->getId() << " a usar lista" << endl;
+		GLuint id = glGenLists(1);
+		n->setListId(id);
+		glNewList(id,GL_COMPILE);
+
+		cout << "Lista " << id << endl;
+	}
+
+
+
+	glEnable(GL_TEXTURE_2D);
+
+
+
+	if(actualM != NULL) actualM->apply();
+	glEnable(GL_MODELVIEW);
+	glMultMatrixf(n->getMatrix());
+
+	for( unsigned int i = 0; i<n->getPrimitivas().size();i++)
+	{
+
+		if(strcmp(cullface,"back") == 0) 
+		{
+			glEnable(GL_CULL_FACE); 
+			glCullFace(GL_BACK);
+
+			if(strcmp(drawmode, "fill") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+			else if(strcmp(drawmode, "line") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			}
+
+		}
+		else if(strcmp(cullface,"front") == 0)
+		{
+			glEnable(GL_CULL_FACE); 
+			glCullFace(GL_FRONT);
+
+			if(strcmp(drawmode, "fill") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+			else if(strcmp(drawmode, "line") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			}
+		}
+		else if(strcmp(cullface,"both")==0)
+		{
+			glEnable(GL_CULL_FACE); 
+			glCullFace(GL_FRONT_AND_BACK);
+
+			if(strcmp(drawmode, "fill") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+			else if(strcmp(drawmode, "line") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			}
+		}
+		else
+		{
+			if(strcmp(drawmode, "fill") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+			else if(strcmp(drawmode, "line") == 0) 
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			}
+		}
+
+
+		n->getPrimitivas()[i]->draw();
+
+		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+	}
+
+	unsigned int i = 0;
+	for(i = 0; i < n->getChildren().size(); i++)
+	{
+		glPushMatrix();
+
+		initLists(n->getChildren()[i], actualM);
+		glPopMatrix();
+
+	}
+}
+
+void Cena::setAmbient(AmbientLight *ambient)
 {
 	ambient_light = ambient;
 }
@@ -465,60 +289,144 @@ void Cena::setGraph(vector<Node *> graph)
 }
 
 
-void Cena::calculateMatrixes(Node *n)
-{
-	float newMatrix[16];
-	glPushMatrix();
-	
-	glLoadMatrixf(n->getMatrix());
-	
-	if(n->getParent() != NULL) 
-	{
-		glMultMatrixf(n->getParent()->getMatrix());
-		glGetFloatv(GL_MODELVIEW_MATRIX, newMatrix);
-		n->setMatrix(newMatrix);
-	}
-
-	
-	
-	
-	//glPopMatrix();
-	
-
-	for(int i = 0; i < n->getChildren().size(); i++) calculateMatrixes(n->getChildren()[i]);
-}
 void Cena::processNode(Node *n, Material *m)
-{     
-	
+{  
+
 	glEnable(GL_TEXTURE_2D);
 
-	cout << "A processar No: " << n->getId() << endl;
-			
-	if(n->getMaterial() != NULL) n->getMaterial()->apply();
-	
-	
-	cout << "Textura ok " << endl;
-	glMultMatrixf(n->getMatrix());
-	
-	for(int i = 0; i<n->getPrimitivas().size();i++)
+	if (n->isUsingDisplayList())
 	{
-		n->getPrimitivas()[i]->draw();
+		glCallList(n->getListId());
+
 	}
-		
-	glDisable(GL_TEXTURE_2D);
+	else
+	{
+		Material *actualM;
 
+		if(n->getMaterial() != NULL) actualM = n->getMaterial();
+		else actualM = m;
 
-		
-		for(int i = 0; i < n->getChildren().size(); i++)
+		if(actualM != NULL) actualM->apply();
+		glEnable(GL_MODELVIEW);
+		glMultMatrixf(n->getMatrix());
+
+		for( unsigned int i = 0; i<n->getPrimitivas().size();i++)
+		{
+
+			if(strcmp(cullface,"back") == 0) 
+			{
+				glEnable(GL_CULL_FACE); 
+				glCullFace(GL_BACK);
+
+				if(strcmp(drawmode, "fill") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
+				else if(strcmp(drawmode, "line") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				}
+				else
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+				}
+
+			}
+			else if(strcmp(cullface,"front") == 0)
+			{
+				glEnable(GL_CULL_FACE); 
+				glCullFace(GL_FRONT);
+
+				if(strcmp(drawmode, "fill") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
+				else if(strcmp(drawmode, "line") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				}
+				else
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+				}
+			}
+			else if(strcmp(cullface,"both")==0)
+			{
+				glEnable(GL_CULL_FACE); 
+				glCullFace(GL_FRONT_AND_BACK);
+
+				if(strcmp(drawmode, "fill") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
+				else if(strcmp(drawmode, "line") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				}
+				else
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+				}
+			}
+			else
+			{
+				if(strcmp(drawmode, "fill") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
+				else if(strcmp(drawmode, "line") == 0) 
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				}
+				else
+				{
+					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+				}
+			}
+
+			n->getPrimitivas()[i]->draw();
+
+			glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+		}
+
+		for( unsigned int i = 0; i < n->getChildren().size(); i++)
 		{
 			glPushMatrix();
-			processNode(n->getChildren()[i], n->getMaterial());
+
+			processNode(n->getChildren()[i], actualM);
+
 			glPopMatrix();
 		}
-			
-	
-	
+	}
+
 }
+
+
+
+char * Cena::getCullFace()
+{
+	return cullface;
+}
+
+void Cena::setDrawMode(char *drawmode)
+{
+	this->drawmode = drawmode;
+}
+
+char * Cena:: getDrawMode()
+{
+	return drawmode;
+}
+vector <Spot *> Cena::getSpots()
+{
+	return spots;
+}
+
+vector <Omni *> Cena::getOmnis()
+{
+	return omnis;
+}
+
 Cena::~Cena()
 {
 }

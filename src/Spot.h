@@ -1,26 +1,21 @@
 #ifndef SPOT_H
 #define SPOT_H
-#include <vector>
 
+#include <vector>
+#include "GL\gl.h"
+#include "Light.h"
 using namespace std;
-class Spot{
+
+class Spot:public Light{
 
 public:
 	Spot(vector<float> location, vector<float>ambient, vector<float>diffuse, vector<float>specular, vector<float> direction, char *id, bool enabled, float angle, float exponent);
-	vector<float> getLocation();
-	vector<float> getAmbient();
-	vector<float> getDiffuse();
-	vector<float> getSpecular();
 	vector<float> getDirection();
 	float getAngle();
 	float getExponent();
-	bool isEnabled();
-	char* getId();
 
 protected:
-	vector<float> location, ambient, diffuse, specular,direction;
-	char *id;
-	bool enabled;
+	vector<float> direction;
 	float angle,exponent;
 };
 #endif

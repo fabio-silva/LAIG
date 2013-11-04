@@ -4,23 +4,15 @@
 
 
 Node::Node(char *id, bool root)
-{
-		
+{		
 	this->id = id;
-	material = NULL;
-	
-
+	material = NULL;	
 	this->root = root;
 	parent = NULL;
-
 	glLoadIdentity();
-
 	glGetFloatv(GL_MODELVIEW_MATRIX, Matrix);
-
-	
-
-	
-
+	usingDisplayList = false;
+	listId = -1;
 }
 
 char *Node::getId()
@@ -37,13 +29,6 @@ char *Node::getParentId()
 void Node::setParent(Node *parent)
 {
 	this->parent = parent;
-
-
-	/*glPushMatrix();
-	glLoadMatrixf(Matrix);
-	glMultMatrixf(parent->getMatrix());
-	glGetFloatv(GL_MODELVIEW_MATRIX, Matrix);
-	glPopMatrix();*/
 }
 
 void Node::setChildren(vector<Node*> children)
@@ -64,25 +49,11 @@ void Node::addChild(Node *child)
 {
 	children.push_back(child);
 	child->setParent(this);
-	if(child->getMaterial() == NULL && child->getPrimitivas().size()!=0) 
-		{
-			child->setMaterial(material);
-			if(material != NULL )cout << "No " << child->getId() << " a herdar textura: " << material->getTexture()->getFilePath() << endl;
-			//if(material->getId() == NULL) cout << "
-	}
 }
 
 void Node::setMatrix(float mat[16])
 {
-
-	
 	memcpy(Matrix, mat, 16*sizeof(float));
-
-		
-		
-		
-
-
 }
 
 vector <Node *> Node::getChildren()
@@ -92,20 +63,11 @@ vector <Node *> Node::getChildren()
 
 void Node::setMaterial(Material *m)
 {
-	if(m != NULL) 
-		{
-		/*	cout << "No : " << id << ", material = " << m->getTexture()->getFilePath() << endl;
-			getchar();*/
-			
-	}
 	material = m;
 }
 
 void Node::addPrimitiva(Primitiva *p)
 {
-	/*cout << "No: " << id << " " ;
-	p->printTipo();
-	cout << endl;*/
 	primitivas.push_back(p);
 }
 
@@ -113,8 +75,6 @@ vector<float> Node::getData()
 {
 	return data;
 }
-
-
 
 char *Node::getCullOrder()
 {
@@ -133,7 +93,25 @@ vector<Primitiva *> Node::getPrimitivas()
 
 Material *Node::getMaterial()
 {
-	//if(material == NULL) cout <<"nulo" <<endl;
 	return material;
-	
+}
+
+void Node::useDisplayList(bool d)
+{
+	usingDisplayList = d;
+}
+
+bool Node::isUsingDisplayList()
+{
+	return usingDisplayList;
+}
+
+void Node::setListId(int id)
+{
+	this->listId = id;
+}
+
+int Node::getListId()
+{
+	return listId;
 }

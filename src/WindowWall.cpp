@@ -1,5 +1,4 @@
 #include "WindowWall.h"
-#include "myUnitCube.h"
 #include <GL/glu.h>
 
 WindowWall::WindowWall(void) {

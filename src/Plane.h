@@ -1,17 +1,15 @@
 #pragma once
 
 #include "CGFobject.h"
-class Plane {
+#include "Primitiva.h"
+
+class Plane :public Primitiva{
 public:
-	Plane(void);
-	Plane(int, int, int, double, double);
-	~Plane(void);
+	Plane(int div);
 	void draw();
+
 private:
-	int _numDivisions; // Number of triangles that constitute rows/columns
-	int sMultiplier;
-	int tMultiplier;
-	double domain;
-	double delta;
+	int divisions;
+
 };
 

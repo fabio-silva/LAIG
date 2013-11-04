@@ -1,6 +1,6 @@
 #pragma once
-#include "Primitiva.h"
 
+#include "Primitiva.h"
 
 class Sphere:public Primitiva{
 public:

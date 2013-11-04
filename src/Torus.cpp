@@ -12,14 +12,12 @@ Torus::Torus(vector<float> data,char *cullorder):Primitiva(data ,cullorder)
 
 void Torus::draw()
 {
-
 	for(int i = 0; i < (int)data[3]; i++) 
 	{
 		theta1 = (float)((float)i * 2.0 * M_PI / data[3]);
 		theta2 = (float)((float)(i + 1) * 2.0 * M_PI / data[3]);
 
-		for (int j = 0; j < data[2]; j++) 
-		{
+		for (int j = 0; j < data[2]; j++) {
 			phi1 = (float)((float)j * 2.0 * M_PI / data[2]);
 			phi2 = (float)((float)(j + 1) * 2.0 * M_PI / data[2]);
 
@@ -79,9 +77,5 @@ void Torus::draw()
 		}
 	}
 }
-
-
-
-
 
 vector<float>Torus::getNormals(){vector<float> res; return res;}
