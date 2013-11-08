@@ -4,6 +4,9 @@
 Cena::Cena()
 {
 	activeCamera = NULL;
+	w = new WaterLine();
+
+
 }
 
 void Cena::setGlobals(float backR, float backG, float backB, float backAlpha, char *drawmode, char *shading, char *cullface, char *cullorder)
@@ -47,7 +50,7 @@ char* Cena::getInitialCameraId()
 
 void Cena::init()
 {
-	
+
 
 	glClearColor(backR,backG,backB,backAlpha); 
 
@@ -118,7 +121,6 @@ void Cena::init()
 		if(graph[i]->isUsingDisplayList()) 
 		{
 			glEndList();
-			cout << "No " << graph[i]->getId() << " fechou lista " << endl;
 		}
 	}
 }
@@ -135,7 +137,8 @@ void Cena::display()
 
 	}
 	axis.draw();
-
+	//l->draw();
+	w->draw();
 	glEnable(GL_TEXTURE_2D);
 	glutSwapBuffers();
 }
@@ -150,7 +153,6 @@ void Cena::initLists(Node *n, Material *m)
 
 	if(n->isUsingDisplayList()) 
 	{
-		cout << "No " << n->getId() << " a usar lista" << endl;
 		GLuint id = glGenLists(1);
 		n->setListId(id);
 		glNewList(id,GL_COMPILE);
@@ -423,6 +425,11 @@ vector <Omni *> Cena::getOmnis()
 	return omnis;
 }
 
+
+void Cena::setAnimation(LinearAnimation *l)
+{
+	this->l = l;
+}
 Cena::~Cena()
 {
 }

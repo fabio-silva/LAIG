@@ -13,6 +13,8 @@
 #include "Ortho.h"
 #include "AmbientLight.h"
 #include "Plane.h"
+#include "LinearAnimation.h"
+#include "WaterLine.h"
 using namespace std;
 class Cena{
 
@@ -39,6 +41,7 @@ public:
 	void setDrawMode(char *drawmode);
 	char *getDrawMode();
 	void initLists(Node *n, Material *m);
+	void setAnimation(LinearAnimation *l);
 
 protected:
 	float backR, backG, backB, backAlpha;
@@ -54,6 +57,8 @@ protected:
 	char* initialCameraId;
 	vector<GLuint> indexes;
 	Plane *p;
+	LinearAnimation *l;
+	WaterLine *w;
 };
 
 #endif

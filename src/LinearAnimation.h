@@ -1,0 +1,17 @@
+#pragma once
+
+#include "Animation.h"
+
+
+class LinearAnimation:public Animation
+{
+public:
+	LinearAnimation(vector<vector<float>> ctrlPoints, int nControlPoints, float duration);
+	void draw();
+
+protected:
+	Vehicle *v;
+	int nextPoint;
+	int currentTime, previousTime;
+	float curX,curY,curZ;
+};

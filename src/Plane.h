@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CGFobject.h"
+
 #include "Primitiva.h"
 
 class Plane :public Primitiva{

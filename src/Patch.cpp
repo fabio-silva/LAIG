@@ -13,7 +13,7 @@ Patch::Patch(int order, int u, int v, char *compute, char *cullorder):Primitiva(
 	{
 		ctrlPoints[i] = (GLfloat *)malloc(sizeof(GLfloat) * 3);
 
-		cout << "i = " << i << endl;
+		
 	}
 
 

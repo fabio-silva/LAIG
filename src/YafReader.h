@@ -19,6 +19,7 @@
 #include "AmbientLight.h"
 #include "Plane.h"
 #include "Patch.h"
+#include "Vehicle.h"
 using namespace std;
 
 class YafReader
@@ -28,6 +29,7 @@ public:
 	YafReader(char* filename);
 	~YafReader();
 	Cena scene;
+	
 protected:
 	char* findTextureById(char* id);
 	Node* findNodeById(char* id);
@@ -39,11 +41,13 @@ protected:
 	TiXmlElement* texturesElement;
 	TiXmlElement* appearancesElement;
 	TiXmlElement* graphElement;
+	TiXmlElement* animationElement;
 	//Grafo graph;
 	vector<Texture*> textures;
 	vector<Material*> materials;
 	vector< vector <char*>> noderefs_vec;
 	vector<Node *> graph;
+	
 };
 
 #endif

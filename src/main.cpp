@@ -1,5 +1,5 @@
+#include "GL\glew.h"
 #include "YafReader.h"
-
 void myGlutIdle();
 void display();
 void controlPanelCamera(int id);
@@ -43,11 +43,19 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(1280, 720);
 	glutInitWindowPosition(30,30);
-	
+
 	main_window = glutCreateWindow(argv[0]);
+	
+	glewInit();
+
+
+
+		
+
+
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
-	
+
 	glui2 = GLUI_Master.create_glui_subwindow( main_window, GLUI_SUBWINDOW_RIGHT );
 	glui2->set_main_gfx_window( main_window );
 

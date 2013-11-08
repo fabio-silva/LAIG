@@ -1,8 +1,11 @@
 #pragma once
 
 #include <vector>
+
 #include <math.h>
+
 #include "Material.h"
+
 #include "GL\gl.h"
 #include "glut.h"
 #include <iostream>

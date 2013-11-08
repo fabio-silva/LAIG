@@ -41,6 +41,7 @@ YafReader::YafReader(char* filename)
 	texturesElement = yafElement->FirstChildElement("textures");
 	appearancesElement = yafElement->FirstChildElement("appearances");
 	graphElement = yafElement->FirstChildElement("graph");
+	animationElement = yafElement->FirstChildElement("animations");
 
 
 	//Globals tag parsing
@@ -838,6 +839,53 @@ YafReader::YafReader(char* filename)
 		}
 	}
 
+
+	if(animationElement != NULL)
+	{
+		TiXmlElement* animElement = animationElement->FirstChildElement("animation");
+		TiXmlElement *controlElement = animElement->FirstChildElement("controlpoint");
+
+		
+		int nControl = 0;
+		vector<vector<float>> points;
+		
+
+	
+		
+		char *id =(char *) animElement->Attribute("id");
+		float span, x, y, z;
+		
+		animElement->QueryFloatAttribute("span", &span);
+
+		cout << "span = " << span << endl;
+
+		while(controlElement)
+		{
+			float x,y,z;
+			vector<float> point;
+			nControl++;
+			controlElement->QueryFloatAttribute("xx", &x);
+			controlElement->QueryFloatAttribute("yy", &y);
+			controlElement->QueryFloatAttribute("zz", &z);
+
+			point.push_back(x);
+			point.push_back(y);
+			point.push_back(z);
+
+			
+
+			points.push_back(point);
+
+			controlElement = controlElement->NextSiblingElement();
+
+		
+		}
+
+
+		LinearAnimation *animation = new LinearAnimation(points, nControl, span);
+
+		scene.setAnimation(animation);
+	}
 	//Graph tag processing
 
 
@@ -879,7 +927,6 @@ YafReader::YafReader(char* filename)
 			if(displaylist != NULL)
 			{
 				if(strcmp(displaylist, "true") == 0) nd->useDisplayList(true);
-				cout << "No " << nodeId << "com lista" << endl;
 
 			}
 
@@ -1004,7 +1051,7 @@ YafReader::YafReader(char* filename)
 						if(childrenTypeElement == NULL)
 						{
 							cout << "No children block found on Node" <<nodeId <<",exiting..." << endl;
-							exit(1);
+							//exit(1);
 						}
 
 						while(childrenTypeElement)
@@ -1272,6 +1319,16 @@ YafReader::YafReader(char* filename)
 								}
 
 
+							}
+
+
+							if(strcmp(childrenTypeElement->Value(), "vehicle") == 0)
+							{
+								hasElement = true;
+
+								Vehicle *v = new Vehicle(cullorder);
+
+								nd->addPrimitiva(v);
 							}
 
 
