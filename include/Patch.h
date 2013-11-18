@@ -9,11 +9,12 @@ public:
 	Patch(int order, int u, int v, char *compute, char *cullorder);
 	void addControPoint(GLfloat *ctrl);
 	void draw();
+	void setControlPoints(GLfloat ***ctrl);
 
 protected:
 	int order, u, v;
 	char *compute;
-	int matrixPos;
+	int iPos,jPos;
 
-	GLfloat **ctrlPoints;
+	GLfloat ***ctrlPoints;
 };

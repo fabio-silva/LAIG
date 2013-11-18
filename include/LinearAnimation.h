@@ -6,12 +6,14 @@
 class LinearAnimation:public Animation
 {
 public:
-	LinearAnimation(vector<vector<float>> ctrlPoints, int nControlPoints, float duration);
+	LinearAnimation(vector<vector<float>> ctrlPoints, int nControlPoints, float duration,char *id);
 	void draw();
 
 protected:
 	Vehicle *v;
 	int nextPoint;
 	int currentTime, previousTime;
-	float curX,curY,curZ;
+	float curX,curY,curZ;	
+	vector<vector<float>> vectors;
+	vector<float> angles;
 };

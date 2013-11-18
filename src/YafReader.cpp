@@ -840,21 +840,23 @@ YafReader::YafReader(char* filename)
 	}
 
 
-	if(animationElement != NULL)
+	if(animationElement)
 	{
 		TiXmlElement* animElement = animationElement->FirstChildElement("animation");
 		TiXmlElement *controlElement = animElement->FirstChildElement("controlpoint");
 
-		
+		while(animElement)
+		{
+
 		int nControl = 0;
 		vector<vector<float>> points;
-		
 
-	
-		
+
+
+
 		char *id =(char *) animElement->Attribute("id");
 		float span, x, y, z;
-		
+
 		animElement->QueryFloatAttribute("span", &span);
 
 		cout << "span = " << span << endl;
@@ -872,19 +874,23 @@ YafReader::YafReader(char* filename)
 			point.push_back(y);
 			point.push_back(z);
 
-			
+
 
 			points.push_back(point);
 
 			controlElement = controlElement->NextSiblingElement();
 
-		
+
 		}
 
 
-		LinearAnimation *animation = new LinearAnimation(points, nControl, span);
+		LinearAnimation *animation = new LinearAnimation(points, nControl, span,id);
 
-		scene.setAnimation(animation);
+		scene.addAnim(animation);
+
+		animElement = animElement->NextSiblingElement();
+
+		}
 	}
 	//Graph tag processing
 
@@ -1278,6 +1284,7 @@ YafReader::YafReader(char* filename)
 								hasElement = true;
 								int order, partsU, partsV;
 								char *compute;
+								GLfloat **points;
 
 								if (childrenTypeElement->QueryIntAttribute("order",&order) == TIXML_SUCCESS &&
 									childrenTypeElement->QueryIntAttribute("partsU",&partsU) == TIXML_SUCCESS &&
@@ -1286,16 +1293,21 @@ YafReader::YafReader(char* filename)
 									compute = (char *) childrenTypeElement->Attribute("compute");
 
 									Patch *p = new Patch(order, partsU, partsV, compute, cullorder);
+								
+									points = (GLfloat**)malloc(sizeof(GLfloat*) * (order+1)*(order+1));
+
+									for(int i = 0; i < (order+1)*(order+1) ; i++) points[i] = (GLfloat*)malloc(sizeof(GLfloat)*3);
 
 									TiXmlElement* ctrlElement = childrenTypeElement->FirstChildElement();
 
 									if (ctrlElement == NULL)
 									{
-										printf("Seu burro do caralho, poe pontos de controlo!\n");
+										printf("Sem pontos de controlo\n");
 										exit(1);
 									}
 									else
 									{
+										int countPoints = 0;
 										while(ctrlElement)
 										{
 											if (strcmp(ctrlElement->Value(),"controlpoint") == 0)
@@ -1306,14 +1318,20 @@ YafReader::YafReader(char* filename)
 													ctrlElement->QueryFloatAttribute("y",&y) == TIXML_SUCCESS &&
 													ctrlElement->QueryFloatAttribute("z",&z) == TIXML_SUCCESS)
 												{
-													GLfloat point[] = {x,y,z};
+													points[countPoints][0] = x;
+													points[countPoints][1] = y;
+													points[countPoints][2] = z;
 
-													p->addControPoint(point);
+													countPoints++;
+													cout <<"Ponto" << endl;
 												}
 											}
 
 											ctrlElement = ctrlElement->NextSiblingElement();
+											
 										}
+										
+										for(int i = 0; i< (order+1)*(order+1);i++) p->addControPoint(points[i]);
 									}
 									nd->addPrimitiva(p);
 								}
@@ -1329,6 +1347,19 @@ YafReader::YafReader(char* filename)
 								Vehicle *v = new Vehicle(cullorder);
 
 								nd->addPrimitiva(v);
+							}
+
+							if(strcmp(childrenTypeElement->Value(), "waterline") == 0)
+							{
+								hasElement = true;
+								char *bump = (char *)childrenTypeElement->Attribute("heightmap");
+								char *texture = (char *)childrenTypeElement->Attribute("texturemap");
+
+								char *fragFile = (char *)childrenTypeElement->Attribute("fragmentshader");
+
+								char *vertFile = (char *)childrenTypeElement->Attribute("vertexshader");
+
+								nd->addPrimitiva(new WaterLine(fragFile, vertFile, bump, texture));
 							}
 
 

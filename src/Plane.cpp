@@ -40,6 +40,7 @@ Plane::Plane(int div):Primitiva(data,cullorder)
 
 	divisions = div;
 	
+
 }
 
 void Plane::draw()

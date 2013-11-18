@@ -1,5 +1,6 @@
 #include "GL\glew.h"
 #include "YafReader.h"
+#include "Client.h"
 void myGlutIdle();
 void display();
 void controlPanelCamera(int id);
@@ -119,6 +120,24 @@ int main(int argc, char* argv[])
 	init();	
 
 	glutMainLoop();
+
+/*	Client *client = new Client(60001, "127.0.0.1");
+
+	string msg  = "'Ola mundo'.";
+
+	client->sendData(const_cast<char*>(msg.c_str()));
+
+	cout << "DATA SENT " << endl;
+	char *data = client->receiveData();
+
+	string temp = data;
+
+	string sub = temp.substr(0, temp.size() - 2);
+
+	cout << "SUB = " << sub << endl;
+
+	getchar();*/
+
 }
 
 void myGlutIdle()

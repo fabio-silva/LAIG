@@ -4,7 +4,6 @@
 Cena::Cena()
 {
 	activeCamera = NULL;
-	w = new WaterLine();
 
 
 }
@@ -130,16 +129,22 @@ void Cena::display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 
 	activeCamera->render();
-
+		for(int i = 0; i< anims.size();i++) 
+		{
+			//glPushMatrix();
+			anims[i]->draw();
+			//glPopMatrix();
+	}
 	for(unsigned int i = 0; i<graph.size(); i++) if(graph[i]->isRoot()) 
 	{
 		processNode(graph[i], NULL);
 
 	}
 	axis.draw();
-	//l->draw();
-	w->draw();
+	
 	glEnable(GL_TEXTURE_2D);
+
+	//glEnable(GL_TEXTURE_2D);
 	glutSwapBuffers();
 }
 
@@ -426,9 +431,9 @@ vector <Omni *> Cena::getOmnis()
 }
 
 
-void Cena::setAnimation(LinearAnimation *l)
+void Cena::addAnim(LinearAnimation *l)
 {
-	this->l = l;
+	anims.push_back(l);
 }
 Cena::~Cena()
 {

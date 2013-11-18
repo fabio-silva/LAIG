@@ -1,28 +1,29 @@
 #include <GL/glew.h>
 #include "WaterLine.h"
 
-WaterLine::WaterLine()
+WaterLine::WaterLine(char *frag, char *vert, char *bmp, char *text):Primitiva(data,NULL)
 {
 
 
 
 
-	init("vertexShader.vert", "fragmentShader.frag");
+	init(vert, frag);
 
-
-	cout << "TUDO OK" << endl;
 
 
 
 	p = new Plane(20);
 
+	time = 0;
 
 
 
 	CGFshader::bind();
 
-	bump = new CGFtexture("watermap.jpg");
-	texture = new CGFtexture("water.jpg");
+	
+
+	bump = new CGFtexture(bmp);
+	texture = new CGFtexture(text);
 
 	GLint textureImage = glGetUniformLocation(id(), "texture");
 
@@ -32,6 +33,10 @@ WaterLine::WaterLine()
 
 	glUniform1i(blue, 1);
 
+	timeLoc = glGetUniformLocation(id(), "time");
+
+
+	
 
 }
 
@@ -52,16 +57,25 @@ void WaterLine::bind()
 
 void WaterLine::draw()
 {
-
+	
 	glPushMatrix();
-	glTranslatef(0,0,10);
+	bind();
+	glRotatef(-90,0,1,0);
 	glRotatef(-90,1,0,0); 
 	glScalef(20,10,30);
-	bind();
 
+	
+	glUniform1f(timeLoc, time);
+	time += 0.01;
+
+	
+	if(time == 0.1) time = 0;
+	
 	p->draw();
 
 	unbind();
-
 	glPopMatrix();
+
+	
+
 }

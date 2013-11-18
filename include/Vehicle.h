@@ -10,7 +10,7 @@ public:
 	void draw();
 protected:
 	Rectangle *f1,*f2,*f3,*f4,*f5;
-	Material *m;
+	Material *m,*m2;
 	Patch *p;
 
 	

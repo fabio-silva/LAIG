@@ -1,6 +1,6 @@
 #include "LinearAnimation.h"
 
-LinearAnimation::LinearAnimation(vector<vector<float>> ctrlPoints, int nControlPoints, float duration):Animation(ctrlPoints, nControlPoints, duration)
+LinearAnimation::LinearAnimation(vector<vector<float>> ctrlPoints, int nControlPoints, float duration,char *id):Animation(ctrlPoints, nControlPoints, duration,id)
 {
 
 
@@ -12,11 +12,39 @@ LinearAnimation::LinearAnimation(vector<vector<float>> ctrlPoints, int nControlP
 
 	for(int i = 0; i < nControlPoints; i++)
 	{
+		cout << "CTRL = " << ctrlPoints[i][0] << ", " << ctrlPoints[i][1] << ", " << ctrlPoints[i][2] << endl;
 		if( (i+1) < nControlPoints) 
 		{
+			vector<float>pt; 
+			pt.push_back(ctrlPoints[i+1][0] - ctrlPoints[i][0]);
+			pt.push_back(ctrlPoints[i+1][1] - ctrlPoints[i][1]);
+			pt.push_back(ctrlPoints[i+1][2] - ctrlPoints[i][2]);
+
 			distance += sqrt ( pow(ctrlPoints[i+1][0] - ctrlPoints[i][0],2.0) + pow(ctrlPoints[i+1][1] - ctrlPoints[i][1],2.0) + pow(ctrlPoints[i+1][2] - ctrlPoints[i][2],2.0));
-			cout << "PONTO ANIM = " << ctrlPoints[i+1][0] <<", " <<ctrlPoints[i+1][1] << ", " << ctrlPoints[i+1][2] <<   endl;
-			cout << "D = " << distance << endl;
+			vectors.push_back(pt);
+		}
+	}
+
+	for(int i = 0;  i < vectors.size(); i++) cout << "VETOR = " << vectors[i][0] << ", " << vectors[i][1] << ", " << vectors[i][2] << endl;
+	
+
+	float initialAngle = acos((0*vectors[0][0] + 0*vectors[0][1] + 1*vectors[0][2]) /  sqrt(vectors[0][0]*vectors[0][0]+/*vectors[0][1]*vectors[0][1]*/+vectors[0][2]*vectors[0][2]) ) * 180/PI;
+	if(ctrlPoints[1][0] < ctrlPoints[0][0]) initialAngle = -initialAngle;
+
+	angles.push_back(initialAngle);
+
+	cout << "inicial angle = " << initialAngle << endl;
+
+	for(int i = 0 ; i < vectors.size(); i++)
+	{
+		if( (i+1) < vectors.size())
+		{
+			float angle = acos( (vectors[i][0] * vectors[i+1][0] + /*vectors[i][1] * vectors[i+1][1]*/ + vectors[i][2] * vectors[i+1][2]) / ( sqrt(vectors[i][0]*vectors[i][0] + /*vectors[i][1]*vectors[i][1] + */vectors[i][2]*vectors[i][2]) * sqrt(vectors[i+1][0]*vectors[i+1][0] +/* vectors[i+1][1]*vectors[i+1][1]*/ + vectors[i+1][2]*vectors[i+1][2])));
+			angle = angle * 180/PI;
+			if(vectors[i+1][0] < vectors[i][0]) angle = -angle;
+			angles.push_back(angle);
+
+			
 		}
 	}
 
@@ -40,16 +68,16 @@ void LinearAnimation::draw()
 	bool goToNextPoint = true;
 
 
-
+	
 	if(timeInterval >= 10) //A cada decimo de segundo
 	{
-		if(distance > 0)
+		if(distance > 0 && (curX != ctrlPoints[nControlPoints-1][0] || curY != ctrlPoints[nControlPoints-1][1] || curZ != ctrlPoints[nControlPoints-1][2]))
 		{
-
+			
 			if(ctrlPoints[nextPoint][0] > curX) 
 			{
 				if(curX + velocity <= ctrlPoints[nextPoint][0]) curX += velocity;
-				else curX += ctrlPoints[nextPoint][0] - curX;
+				else curX = (ctrlPoints[nextPoint][0]);
 				if(curX < ctrlPoints[nextPoint][0]) goToNextPoint = false;
 
 				
@@ -57,21 +85,21 @@ void LinearAnimation::draw()
 			else if(ctrlPoints[nextPoint][0] < curX) 
 			{
 				if(curX - velocity >= ctrlPoints[nextPoint][0]) curX -= velocity;
-				else curX -= ctrlPoints[nextPoint][0] + curX;
+				else curX = (ctrlPoints[nextPoint][0]);
 				if(curX > ctrlPoints[nextPoint][0]) goToNextPoint = false;
 			}
 
 			if(ctrlPoints[nextPoint][1] > curY) 
 			{
 				if(curY + velocity <= ctrlPoints[nextPoint][1]) curY += velocity;
-				else curY += ctrlPoints[nextPoint][1] - curY;
+				else curY = ctrlPoints[nextPoint][1];
 
 				if(curY < ctrlPoints[nextPoint][1]) goToNextPoint = false;
 			}
 			else if(ctrlPoints[nextPoint][1] < curY) 
 			{
 				if(curY - velocity >= ctrlPoints[nextPoint][1]) curY -= velocity;
-				else curY -= ctrlPoints[nextPoint][1] + curY;
+				else curY = ctrlPoints[nextPoint][1];
 
 				if(curY > ctrlPoints[nextPoint][1]) goToNextPoint = false;
 			}
@@ -79,14 +107,14 @@ void LinearAnimation::draw()
 			if(ctrlPoints[nextPoint][2] > curZ) 
 			{
 				if(curZ + velocity <= ctrlPoints[nextPoint][2]) curZ += velocity;
-				else curZ += ctrlPoints[nextPoint][2] - curZ;
+				else curZ = ctrlPoints[nextPoint][2];
 
 				if(curZ < ctrlPoints[nextPoint][2]) goToNextPoint = false;
 			}
 			else if(ctrlPoints[nextPoint][2] < curZ) 
 			{
 				if(curZ - velocity >= ctrlPoints[nextPoint][2]) curZ -= velocity;
-				else curZ -= ctrlPoints[nextPoint][2] + curZ;
+				else curZ = ctrlPoints[nextPoint][2];
 
 				if(curZ > ctrlPoints[nextPoint][2]) goToNextPoint = false;
 			}
@@ -95,6 +123,7 @@ void LinearAnimation::draw()
 			if(goToNextPoint) 
 			{
 				nextPoint++;
+				
 			}
 
 
@@ -112,8 +141,18 @@ void LinearAnimation::draw()
 
 	}
 
-	glTranslatef(curX, curY, curZ);
 
+	glTranslatef(curX, curY, curZ);
+	if(nextPoint <= angles.size()) 
+		{
+			glRotatef(angles[nextPoint-1], 0, 1, 0);
+			cout << "angle = " << angles[nextPoint-1
+			] << endl;
+		}
+
+	else glRotatef(angles[angles.size()-1],0,1,0);
+	
+	
 	v->draw();
 
 	glPopMatrix();
