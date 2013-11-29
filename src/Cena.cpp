@@ -4,8 +4,6 @@
 Cena::Cena()
 {
 	activeCamera = NULL;
-
-
 }
 
 void Cena::setGlobals(float backR, float backG, float backB, float backAlpha, char *drawmode, char *shading, char *cullface, char *cullorder)
@@ -18,8 +16,8 @@ void Cena::setGlobals(float backR, float backG, float backB, float backAlpha, ch
 	this->shading = shading;
 	this->cullface = cullface;
 	this->cullorder = cullorder;
-
 	activeCamera = NULL;
+	gameBeginning = true;
 }
 
 vector <Camera*> Cena::getCameras()
@@ -49,221 +47,148 @@ char* Cena::getInitialCameraId()
 
 void Cena::init()
 {
-
-
 	glClearColor(backR,backG,backB,backAlpha); 
-
+	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_NORMALIZE);
 
-	if(strcmp(shading, "flat") == 0) glShadeModel(GL_FLAT);
-	else glShadeModel(GL_SMOOTH);
-
-	if(strcmp(cullorder, "CW") == 0) glFrontFace(GL_CW);
-	else glFrontFace(GL_CCW);
-
-	int n_lights = 0;
-
-	if(ambient_light->isDoubleSided()) glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-	else glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
-
-	if(ambient_light->isLocal()) glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-	else  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_FALSE);
-
-	if(ambient_light->isEnabled()) glLightModelfv(GL_LIGHT_MODEL_AMBIENT, &ambient_light->getAmbient()[0]);
+	
 
 
-	for (unsigned int i = 0; i < omnis.size(); i++)
+
+
+	/*Client *client = new Client(60001, "127.0.0.1");
+
+	string msg  = "'Ola mundo'.";
+
+	client->sendData(const_cast<char*>(msg.c_str()));
+
+	cout << "DATA SENT " << endl;
+	char *data = client->receiveData();
+
+	string temp = data;
+
+	string sub = temp.substr(0, temp.size() - 2);
+
+	cout << "SUB = " << sub << endl;
+	cout << "DATA = " << data << endl;
+
+	char delimiters[] = {'[',']'};
+	string new_data = strtok(data,delimiters);
+	cout << new_data << endl;
+	getchar();
+	exit(1);
+	vector<string> datas;
+	int size = 21;
+	while (size > 0)
 	{
-		float pos[3] = {omnis[i]->getLocation()[0], omnis[i]->getLocation()[1], omnis[i]->getLocation()[2]};
-		float ambient[3] = {omnis[i]->getAmbient()[0], omnis[i]->getAmbient()[1], omnis[i]->getAmbient()[2]};
-		float diffuse[3] = {omnis[i]->getDiffuse()[0], omnis[i]->getDiffuse()[1], omnis[i]->getDiffuse()[2]};
-		float specular[3] = {omnis[i]->getSpecular()[0], omnis[i]->getSpecular()[1], omnis[i]->getSpecular()[2]};
-
-		glLightfv(omnis[i]->getLightNr(), GL_AMBIENT, ambient);
-		glLightfv(omnis[i]->getLightNr(), GL_DIFFUSE, diffuse);
-		glLightfv(omnis[i]->getLightNr(), GL_SPECULAR, specular);
-		glLightfv(omnis[i]->getLightNr(), GL_POSITION, pos);
-
-
-		if(omnis[i]->isEnabled()) glEnable(omnis[i]->getLightNr());
-		else glDisable(omnis[i]->getLightNr());
-	}
-
-	for (unsigned int i = 0; i < spots.size(); i++)
+	if (strcmp(new_data.c_str(),",") != 0 && strcmp(new_data.c_str(),".") != 0)
 	{
-
-		float pos[3] = {spots[i]->getLocation()[0], spots[i]->getLocation()[1], spots[i]->getLocation()[2]};
-		float ambient[3] = {spots[i]->getAmbient()[0], spots[i]->getAmbient()[1], spots[i]->getAmbient()[2]};
-		float diffuse[3] = {spots[i]->getDiffuse()[0], spots[i]->getDiffuse()[1], spots[i]->getDiffuse()[2]};
-		float specular[3] = {spots[i]->getSpecular()[0], spots[i]->getSpecular()[1], spots[i]->getSpecular()[2]};
-		float direction[3] = {spots[i]->getDirection()[0], spots[i]->getDirection()[1], spots[i]->getDirection()[2]};
-
-		glLightfv(spots[i]->getLightNr(), GL_AMBIENT, ambient);
-		glLightfv(spots[i]->getLightNr(), GL_DIFFUSE, diffuse);
-		glLightfv(spots[i]->getLightNr(), GL_SPECULAR, specular);
-		glLightfv(spots[i]->getLightNr(), GL_POSITION, pos);
-		glLightfv(spots[i]->getLightNr(), GL_SPOT_DIRECTION, direction);
-		glLightf(spots[i]->getLightNr(), GL_SPOT_CUTOFF, spots[i]->getAngle());
-		glLightf(spots[i]->getLightNr(), GL_SPOT_EXPONENT, spots[i]->getExponent());
-
-		if(spots[i]->isEnabled()) glEnable(spots[i]->getLightNr());
-		else glDisable(spots[i]->getLightNr());
+	cout << "NEW DATA = " << new_data << endl;
+	datas.push_back(new_data);
 	}
+	new_data = strtok(NULL,delimiters);	
 
-
-	for(unsigned int i = 0; i<graph.size(); i++) 
-	{
-
-		if(!graph[i]->isRoot()) initLists(graph[i], NULL);
-		if(graph[i]->isUsingDisplayList()) 
-		{
-			glEndList();
-		}
+	size--;
 	}
+	this->setDatas(datas);
+	blank_hexa = new Hexagon("CCW",0);
+	p1_hexa = new Hexagon("CCW",1);
+	p2_hexa = new Hexagon("CCW",2);*/
 }
 
 void Cena::display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 
-	activeCamera->render();
-		for(int i = 0; i< anims.size();i++) 
-		{
-			//glPushMatrix();
-			anims[i]->draw();
-			//glPopMatrix();
-	}
-	for(unsigned int i = 0; i<graph.size(); i++) if(graph[i]->isRoot()) 
-	{
-		processNode(graph[i], NULL);
-
-	}
-	axis.draw();
-	
-	glEnable(GL_TEXTURE_2D);
-
-	//glEnable(GL_TEXTURE_2D);
-	glutSwapBuffers();
-}
-
-
-void Cena::initLists(Node *n, Material *m)
-{
-	Material *actualM;
-
-	if(n->getMaterial() != NULL) actualM = n->getMaterial();
-	else actualM = m;
-
-	if(n->isUsingDisplayList()) 
-	{
-		GLuint id = glGenLists(1);
-		n->setListId(id);
-		glNewList(id,GL_COMPILE);
-
-		cout << "Lista " << id << endl;
-	}
-
 
 
 	glEnable(GL_TEXTURE_2D);
-
-
-
-	if(actualM != NULL) actualM->apply();
-	glEnable(GL_MODELVIEW);
-	glMultMatrixf(n->getMatrix());
-
-	for( unsigned int i = 0; i<n->getPrimitivas().size();i++)
+	if(gameBeginning)
 	{
 
-		if(strcmp(cullface,"back") == 0) 
-		{
-			glEnable(GL_CULL_FACE); 
-			glCullFace(GL_BACK);
+		glOrtho(0, 10, 0, 10, 0, 1);
+		GLfloat emission[] = {2.0,2.0,2.0,2.0};
+		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emission);
+		//Ecra Inicial
+		vector<float> default(4,1.0);
 
-			if(strcmp(drawmode, "fill") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-			else if(strcmp(drawmode, "line") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			else
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-			}
+		Material *initialTex = new Material(NULL, default, default, default, default, 1.0, 1, 1, GL_CCW);
+		initialTex->setTexture(new Texture(NULL, "initial.jpg"));
 
-		}
-		else if(strcmp(cullface,"front") == 0)
-		{
-			glEnable(GL_CULL_FACE); 
-			glCullFace(GL_FRONT);
+		initialTex->apply();
 
-			if(strcmp(drawmode, "fill") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-			else if(strcmp(drawmode, "line") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			else
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-			}
-		}
-		else if(strcmp(cullface,"both")==0)
-		{
-			glEnable(GL_CULL_FACE); 
-			glCullFace(GL_FRONT_AND_BACK);
+		glBegin(GL_POLYGON);
 
-			if(strcmp(drawmode, "fill") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-			else if(strcmp(drawmode, "line") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			else
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-			}
-		}
-		else
-		{
-			if(strcmp(drawmode, "fill") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
-			else if(strcmp(drawmode, "line") == 0) 
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			else
-			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-			}
-		}
+		glNormal3d(0, 0, 1);
 
+		glTexCoord2f(0.0, 1.0);
+		glVertex2f(0.0, 10.0);
 
-		n->getPrimitivas()[i]->draw();
+		glTexCoord2f(0.0, 0.0);
+		glVertex2f(0.0, 0.0);
 
-		glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+		glTexCoord2f(1.0, 0.0);
+		glVertex2f(10.0, 0.0);
+
+		glTexCoord2f(1.0, 1.0);
+		glVertex2f(10.0, 10.0);
+
+		glEnd();
 	}
 
-	unsigned int i = 0;
-	for(i = 0; i < n->getChildren().size(); i++)
+	else
 	{
+		activeCamera->render();
 		glPushMatrix();
-
-		initLists(n->getChildren()[i], actualM);
+		glTranslated(3,0,11);
+		glRotated(90,1,0,0);
+		int cont;
+		/*for(int i = 0; i < datas.size(); i++)
+		{
+		cont = 0;
+		for(int j = 0; j < datas[i].size(); j++)
+		{
+		if (datas[i][j] == '0')
+		{
+		glPushMatrix();
+		if (i <= 5)
+		glTranslated((0.5*j+(-0.5*i)),(-1*i),0);
+		if (i >= 6)
+		glTranslated((0.5*j+(-5+(0.5*i))),(-1*i),0);
+		blank_hexa->draw();
 		glPopMatrix();
-
+		cont++;
+		}
+		else if (datas[i][j] == '1')
+		{
+		glPushMatrix();
+		if (i <= 5)
+		glTranslated((0.5*j+(-0.5*i)),(-1*i),0);
+		if (i >= 6)
+		glTranslated((0.5*j+(-5+(0.5*i))),(-1*i),0);
+		p1_hexa->draw();
+		glPopMatrix();
+		cont++;
+		}
+		else if (datas[i][j] == '2')
+		{
+		glPushMatrix();
+		if (i <= 5)
+		glTranslated((0.5*j+(-0.5*i)),(-1*i),0);
+		if (i >= 6)
+		glTranslated((0.5*j+(-5+(0.5*i))),(-1*i),0);
+		p2_hexa->draw();
+		glPopMatrix();
+		cont++;
+		}
+		}
+		}*/
+		glPopMatrix();
 	}
+	glFlush();
+	glutSwapBuffers();
 }
 
 void Cena::setAmbient(AmbientLight *ambient)
@@ -285,126 +210,6 @@ char *Cena::getCullOrder()
 {
 	return cullorder;
 }
-
-void Cena::setGraph(vector<Node *> graph)
-{
-	this->graph = graph; 
-}
-
-
-void Cena::processNode(Node *n, Material *m)
-{  
-
-	glEnable(GL_TEXTURE_2D);
-
-	if (n->isUsingDisplayList())
-	{
-		glCallList(n->getListId());
-
-	}
-	else
-	{
-		Material *actualM;
-
-		if(n->getMaterial() != NULL) actualM = n->getMaterial();
-		else actualM = m;
-
-		if(actualM != NULL) actualM->apply();
-		glEnable(GL_MODELVIEW);
-		glMultMatrixf(n->getMatrix());
-
-		for( unsigned int i = 0; i<n->getPrimitivas().size();i++)
-		{
-
-			if(strcmp(cullface,"back") == 0) 
-			{
-				glEnable(GL_CULL_FACE); 
-				glCullFace(GL_BACK);
-
-				if(strcmp(drawmode, "fill") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-				else if(strcmp(drawmode, "line") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				}
-				else
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-				}
-
-			}
-			else if(strcmp(cullface,"front") == 0)
-			{
-				glEnable(GL_CULL_FACE); 
-				glCullFace(GL_FRONT);
-
-				if(strcmp(drawmode, "fill") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-				else if(strcmp(drawmode, "line") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				}
-				else
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-				}
-			}
-			else if(strcmp(cullface,"both")==0)
-			{
-				glEnable(GL_CULL_FACE); 
-				glCullFace(GL_FRONT_AND_BACK);
-
-				if(strcmp(drawmode, "fill") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-				else if(strcmp(drawmode, "line") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				}
-				else
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-				}
-			}
-			else
-			{
-				if(strcmp(drawmode, "fill") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-				else if(strcmp(drawmode, "line") == 0) 
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				}
-				else
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-				}
-			}
-
-			n->getPrimitivas()[i]->draw();
-
-			glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-		}
-
-		for( unsigned int i = 0; i < n->getChildren().size(); i++)
-		{
-			glPushMatrix();
-
-			processNode(n->getChildren()[i], actualM);
-
-			glPopMatrix();
-		}
-	}
-
-}
-
-
 
 char * Cena::getCullFace()
 {
@@ -430,11 +235,16 @@ vector <Omni *> Cena::getOmnis()
 	return omnis;
 }
 
-
-void Cena::addAnim(LinearAnimation *l)
+void Cena::setDatas(vector<string> datas)
 {
-	anims.push_back(l);
+	this->datas = datas;
 }
+
+bool Cena::isGameStarting()
+{
+	return gameBeginning;
+}
+
 Cena::~Cena()
 {
 }

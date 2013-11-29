@@ -1,6 +1,5 @@
 #include "GL\glew.h"
 #include "YafReader.h"
-#include "Client.h"
 void myGlutIdle();
 void display();
 void controlPanelCamera(int id);
@@ -38,6 +37,32 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
+void mouse(int button, int state, int x, int y)
+{
+	if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) cout << x << " " << y << endl;
+}
+
+void mouseMovement(int x, int y)
+{
+	if(x >= 417 && x <= 882) 
+		{
+			if( (y >= 198 && y <= 269) ||
+				(y >= 293 && y <= 362) ||
+				(y >= 388 && y <= 459) ||
+				(y >= 486 && y <= 557) ||
+				(y >= 583 && y <= 655))  glutSetCursor(GLUT_CURSOR_TOP_SIDE);
+			
+			else glutSetCursor(GLUT_CURSOR_INHERIT);
+		}
+
+	else glutSetCursor(GLUT_CURSOR_INHERIT);
+}
+
+void reshape(int width, int height)
+{
+	glutReshapeWindow(1280,720);
+
+}
 int main(int argc, char* argv[])
 {	
 	glutInit(&argc, argv);
@@ -46,97 +71,82 @@ int main(int argc, char* argv[])
 	glutInitWindowPosition(30,30);
 
 	main_window = glutCreateWindow(argv[0]);
-	
+
 	glewInit();
-
-
-
-		
-
 
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
-
-	glui2 = GLUI_Master.create_glui_subwindow( main_window, GLUI_SUBWINDOW_RIGHT );
-	glui2->set_main_gfx_window( main_window );
-
+	glutMouseFunc(mouse);
+	glutPassiveMotionFunc(mouseMovement);
+	glutReshapeFunc(reshape);
 	GLUI_Master.set_glutIdleFunc(myGlutIdle);
 
-	int activeCam;
 	if(argc == 2) x = new YafReader(argv[1]);
 	else x = new YafReader("projXML.yaf");
 
-	for(unsigned int i = 0;i<x->scene.getCameras().size();i++) if(strcmp(x->scene.getInitialCameraId(), x->scene.getCameras()[i]->getId()) == 0) activeCam = i;
-	GLUI_Panel *obj_panel = glui2->add_panel("Camaras");
-	group = glui2->add_radiogroup_to_panel(obj_panel, &activeCam,-1, controlPanelCamera);
-
-
-	for(unsigned int i = 0; i <x->scene.getCameras().size();i++) glui2->add_radiobutton_to_group(group, x->scene.getCameras()[i]->getId());
-
-	glui2->add_separator();
-	glui2->add_statictext("Spots");
-
-	for(unsigned int i = 0; i <x->scene.getSpots().size();i++)
+	if(!x->scene.isGameStarting())
 	{
-		int enabled = 0;
+		glui2 = GLUI_Master.create_glui_subwindow( main_window, GLUI_SUBWINDOW_RIGHT );
+		glui2->set_main_gfx_window( main_window );
 
-		if(x->scene.getSpots()[i]->isEnabled()) enabled = 1;
-		GLUI_Checkbox * spot = glui2->add_checkbox(x->scene.getSpots()[i]->getId(), &enabled, i, controlSpotLights);
 
-		spots.push_back(spot);
+
+		int activeCam;
+
+		for(unsigned int i = 0;i<x->scene.getCameras().size();i++) if(strcmp(x->scene.getInitialCameraId(), x->scene.getCameras()[i]->getId()) == 0) activeCam = i;
+		GLUI_Panel *obj_panel = glui2->add_panel("Camaras");
+		group = glui2->add_radiogroup_to_panel(obj_panel, &activeCam,-1, controlPanelCamera);
+
+
+		for(unsigned int i = 0; i <x->scene.getCameras().size();i++) glui2->add_radiobutton_to_group(group, x->scene.getCameras()[i]->getId());
+
+		glui2->add_separator();
+		glui2->add_statictext("Spots");
+
+		for(unsigned int i = 0; i <x->scene.getSpots().size();i++)
+		{
+			int enabled = 0;
+
+			if(x->scene.getSpots()[i]->isEnabled()) enabled = 1;
+			GLUI_Checkbox * spot = glui2->add_checkbox(x->scene.getSpots()[i]->getId(), &enabled, i, controlSpotLights);
+
+			spots.push_back(spot);
+		}
+
+		glui2->add_separator();
+		glui2->add_statictext("Omni");
+		for(unsigned int i = 0; i <x->scene.getOmnis().size();i++)
+		{
+			int enabled = 0;
+
+			if(x->scene.getOmnis()[i]->isEnabled()) enabled = 1;
+			GLUI_Checkbox * omni = glui2->add_checkbox(x->scene.getOmnis()[i]->getId(), &enabled, i, controlOmniLights);
+
+			omnis.push_back(omni);
+		}
+
+
+		glui2->add_separator();
+
+
+		int selectedMode ;
+
+		if(strcmp(x->scene.getDrawMode(), "fill") == 0) selectedMode = 0;
+		else if(strcmp(x->scene.getDrawMode(), "line") == 0) selectedMode = 1;
+		else selectedMode = 2;
+
+		GLUI_Panel *drawPanel = glui2->add_panel("Drawmode");
+
+		drawmode = glui2->add_radiogroup_to_panel(drawPanel,&selectedMode,-1, controlDrawMode);
+
+
+		GLUI_RadioButton * fillBt = glui2->add_radiobutton_to_group(drawmode, "Fill");
+		GLUI_RadioButton * lineBt = glui2->add_radiobutton_to_group(drawmode, "Line");
+		GLUI_RadioButton * pointBt = glui2->add_radiobutton_to_group(drawmode, "Point");
 	}
-
-	glui2->add_separator();
-	glui2->add_statictext("Omni");
-	for(unsigned int i = 0; i <x->scene.getOmnis().size();i++)
-	{
-		int enabled = 0;
-
-		if(x->scene.getOmnis()[i]->isEnabled()) enabled = 1;
-		GLUI_Checkbox * omni = glui2->add_checkbox(x->scene.getOmnis()[i]->getId(), &enabled, i, controlOmniLights);
-
-		omnis.push_back(omni);
-	}
-
-
-	glui2->add_separator();
-
-
-	int selectedMode ;
-
-	if(strcmp(x->scene.getDrawMode(), "fill") == 0) selectedMode = 0;
-	else if(strcmp(x->scene.getDrawMode(), "line") == 0) selectedMode = 1;
-	else selectedMode = 2;
-
-	GLUI_Panel *drawPanel = glui2->add_panel("Drawmode");
-
-	drawmode = glui2->add_radiogroup_to_panel(drawPanel,&selectedMode,-1, controlDrawMode);
-
-
-	GLUI_RadioButton * fillBt = glui2->add_radiobutton_to_group(drawmode, "Fill");
-	GLUI_RadioButton * lineBt = glui2->add_radiobutton_to_group(drawmode, "Line");
-	GLUI_RadioButton * pointBt = glui2->add_radiobutton_to_group(drawmode, "Point");
-
 	init();	
 
 	glutMainLoop();
-
-/*	Client *client = new Client(60001, "127.0.0.1");
-
-	string msg  = "'Ola mundo'.";
-
-	client->sendData(const_cast<char*>(msg.c_str()));
-
-	cout << "DATA SENT " << endl;
-	char *data = client->receiveData();
-
-	string temp = data;
-
-	string sub = temp.substr(0, temp.size() - 2);
-
-	cout << "SUB = " << sub << endl;
-
-	getchar();*/
 
 }
 

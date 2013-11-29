@@ -1,15 +1,5 @@
 #include "YafReader.h"
 
-Node* YafReader::findNodeById(char* id)
-{
-
-	for (unsigned int i = 0; i < graph.size(); i++)
-		if (strcmp(graph[i]->getId(),id) == 0) return graph[i];
-
-
-	return NULL;
-}
-
 YafReader::YafReader(char* filename)
 {
 	yafDocument = new TiXmlDocument(filename);
@@ -107,12 +97,12 @@ YafReader::YafReader(char* filename)
 				hasCameras = true;
 
 				char *id = NULL, *pos = NULL, *target = NULL;
-				float near, far, angle, posX, posY, posZ, targetX, targetY, targetZ;
+				float near_,far_, angle, posX, posY, posZ, targetX, targetY, targetZ;
 
 				id = (char *) perspectiveElement->Attribute("id");
 
 
-				if (perspectiveElement->QueryFloatAttribute("near",&near)==TIXML_SUCCESS)
+				if (perspectiveElement->QueryFloatAttribute("near",&near_)==TIXML_SUCCESS)
 				{
 				}
 				else
@@ -121,7 +111,7 @@ YafReader::YafReader(char* filename)
 					exit(1);
 				}
 
-				if (perspectiveElement->QueryFloatAttribute("far",&far)==TIXML_SUCCESS)
+				if (perspectiveElement->QueryFloatAttribute("far",&far_)==TIXML_SUCCESS)
 				{
 
 				}
@@ -175,7 +165,7 @@ YafReader::YafReader(char* filename)
 
 
 
-				Perspective* p = new Perspective(id,near,far,angle,position,tar);
+				Perspective* p = new Perspective(id,near_,far_,angle,position,tar);
 
 
 				scene.addSceneCamera(p);
@@ -202,12 +192,12 @@ YafReader::YafReader(char* filename)
 				hasCameras = true;
 
 				char *id = NULL;
-				float near, far, left, right, top, bottom;
+				float near_,far_, left, right, top, bottom;
 
 				id = (char *) orthoElement->Attribute("id");
 
 
-				if (orthoElement->QueryFloatAttribute("near",&near)==TIXML_SUCCESS)
+				if (orthoElement->QueryFloatAttribute("near",&near_)==TIXML_SUCCESS)
 				{
 				}
 				else
@@ -216,7 +206,7 @@ YafReader::YafReader(char* filename)
 					exit(1);
 				}
 
-				if (orthoElement->QueryFloatAttribute("far",&far)==TIXML_SUCCESS)
+				if (orthoElement->QueryFloatAttribute("far",&far_)==TIXML_SUCCESS)
 				{
 				}
 				else
@@ -261,7 +251,7 @@ YafReader::YafReader(char* filename)
 					exit(1);
 				}
 
-				Ortho* o = new Ortho(id,near,far,left,right,top,bottom);
+				Ortho* o = new Ortho(id,near_,far_,left,right,top,bottom);
 
 				scene.addSceneCamera(o);
 
@@ -689,8 +679,6 @@ YafReader::YafReader(char* filename)
 					cout << "Same light id's : " << ids[i] << endl;
 					exit(1);
 				}
-
-
 	}
 
 	//Textures tag processing
@@ -716,7 +704,6 @@ YafReader::YafReader(char* filename)
 	}
 
 	//Appearances tag processing
-
 
 	if(appearancesElement == NULL)
 	{
@@ -813,7 +800,6 @@ YafReader::YafReader(char* filename)
 			bool textureFound = false;
 			if(textureref != NULL) 
 			{
-
 				for(unsigned int i = 0; i<textures.size() ; i++)
 
 					if( strcmp(textures[i]->getId(), textureref) == 0) 	
@@ -822,8 +808,6 @@ YafReader::YafReader(char* filename)
 						textureFound = true;
 						break;
 					}
-
-
 			}
 
 			if(!textureFound && textureref != NULL)
@@ -831,592 +815,10 @@ YafReader::YafReader(char* filename)
 				cout << "No texture " << textureref << ",referenced on Appearance " <<id <<", found.Exiting..." << endl;
 				exit(1);
 			}
-
-
-
 			materials.push_back(mat);
-
 		}
 	}
-
-
-	if(animationElement)
-	{
-		TiXmlElement* animElement = animationElement->FirstChildElement("animation");
-		TiXmlElement *controlElement = animElement->FirstChildElement("controlpoint");
-
-		while(animElement)
-		{
-
-		int nControl = 0;
-		vector<vector<float>> points;
-
-
-
-
-		char *id =(char *) animElement->Attribute("id");
-		float span, x, y, z;
-
-		animElement->QueryFloatAttribute("span", &span);
-
-		cout << "span = " << span << endl;
-
-		while(controlElement)
-		{
-			float x,y,z;
-			vector<float> point;
-			nControl++;
-			controlElement->QueryFloatAttribute("xx", &x);
-			controlElement->QueryFloatAttribute("yy", &y);
-			controlElement->QueryFloatAttribute("zz", &z);
-
-			point.push_back(x);
-			point.push_back(y);
-			point.push_back(z);
-
-
-
-			points.push_back(point);
-
-			controlElement = controlElement->NextSiblingElement();
-
-
-		}
-
-
-		LinearAnimation *animation = new LinearAnimation(points, nControl, span,id);
-
-		scene.addAnim(animation);
-
-		animElement = animElement->NextSiblingElement();
-
-		}
-	}
-	//Graph tag processing
-
-
-
-	if (graphElement == NULL)
-	{
-		cout << "Graph block element not found!Exiting" << endl;
-		exit(1);
-	}
-	else
-	{
-		char *rootId = NULL;
-		rootId = (char *) graphElement->Attribute("rootid");
-		int i = 1;
-		TiXmlElement* nodeElement = graphElement->FirstChildElement("node");
-
-		if(nodeElement == false)
-		{
-			cout << "No nodes found!Exiting..." << endl;
-			exit(1);
-		}
-
-		while(nodeElement)
-		{
-			char *nodeId = NULL;
-			char *displaylist = NULL;
-
-			nodeId = (char *) nodeElement->Attribute("id");
-			displaylist = (char *) nodeElement->Attribute("displaylist");
-
-
-
-			Node *nd;
-
-			if(strcmp(rootId, nodeId) == 0) nd = new Node(nodeId, true);
-
-			else nd = new Node(nodeId, false);
-
-			if(displaylist != NULL)
-			{
-				if(strcmp(displaylist, "true") == 0) nd->useDisplayList(true);
-
-			}
-
-
-			TiXmlElement* childrenElemenent = nodeElement->FirstChildElement("transforms");
-
-			if (childrenElemenent == NULL)
-			{
-				cout << "Failed to find transforms tag on Node " << nodeId << ",exiting!" << endl;
-				exit(1);
-			}
-			else
-			{
-				while(childrenElemenent)
-				{
-
-					if (strcmp(childrenElemenent->Value(), "transforms") == 0)
-					{
-						float m[16] = {0};
-						glLoadIdentity();
-
-
-						TiXmlElement* transformTypeElement = childrenElemenent->FirstChildElement();
-
-						while(transformTypeElement)
-						{
-							if (strcmp(transformTypeElement->Value(),"translate") == 0)
-							{
-								char *translate = NULL;
-								float translateX, translateY, translateZ;
-
-
-								translate = (char *) transformTypeElement->Attribute("to");
-
-								if(translate && sscanf(translate,"%f %f %f",&translateX, &translateY, &translateZ) == 3) 
-								{
-								}
-
-
-								glTranslatef(translateX, translateY, translateZ);
-							}
-
-							if (strcmp(transformTypeElement->Value(),"rotate") == 0)
-							{
-								char *axis = NULL;
-								float angle;
-								float pi = acos(-1.0);
-								float deg2rad = pi / 180.0;
-
-								axis = (char *) transformTypeElement->Attribute("axis");
-
-								if ((strcmp(axis,"x") != 0) && (strcmp(axis,"y") != 0) && (strcmp(axis,"z") != 0))
-								{
-									cout << "Invalid input on the axis field on Node " << nodeId << ",exiting!" << endl;
-									exit(1);
-								}
-
-								if (transformTypeElement->QueryFloatAttribute("angle",&angle) == TIXML_SUCCESS)
-								{
-								}
-								else
-								{
-									cout << "Error processing the Rotate Angle value on Node " << nodeId << ",exiting!" << endl;
-								}
-
-								if (strcmp(axis,"x") == 0) glRotatef(angle,1,0,0);
-
-								else if (strcmp(axis,"y") == 0) glRotatef(angle, 0, 1, 0);
-
-								else if (strcmp(axis,"z") == 0) glRotatef(angle, 0,0,1);
-
-
-							}
-
-							if (strcmp(transformTypeElement->Value(),"scale") == 0)
-							{
-								char *scale = NULL;
-								float scaleX, scaleY, scaleZ;
-
-								scale = (char *) transformTypeElement->Attribute("factor");
-
-								if(scale && sscanf(scale,"%f %f %f",&scaleX, &scaleY, &scaleZ) == 3) 
-								{
-								}
-
-								glScalef(scaleX, scaleY, scaleZ);	
-							}
-
-
-
-
-
-							transformTypeElement = transformTypeElement->NextSiblingElement();
-						}
-
-
-
-						glGetFloatv(GL_MODELVIEW_MATRIX,m);
-						nd->setMatrix(m);
-					}
-
-					if (strcmp(childrenElemenent->Value(),"appearanceref") == 0)
-					{
-
-						char *id = NULL;
-
-						id = (char *) childrenElemenent->Attribute("id");
-
-						for( unsigned int i = 0; i<materials.size(); i++)
-							if( strcmp(materials[i]->getId(), id) == 0)	nd->setMaterial(materials[i]);
-
-
-
-
-					}
-
-					if (strcmp(childrenElemenent->Value(),"children") == 0)
-					{
-
-						TiXmlElement* childrenTypeElement = childrenElemenent->FirstChildElement();
-
-						if(childrenTypeElement == NULL)
-						{
-							cout << "No children block found on Node" <<nodeId <<",exiting..." << endl;
-							//exit(1);
-						}
-
-						while(childrenTypeElement)
-						{
-
-							bool hasElement = false;
-							vector<float> data;
-
-
-							if (strcmp(childrenTypeElement->Value(),"rectangle") == 0)
-							{
-
-
-								hasElement = true;
-								char *xy1 = NULL, *xy2 = NULL;
-								float xy1X, xy1Y, xy2X, xy2Y;
-
-								xy1 = (char *) childrenTypeElement->Attribute("xy1");
-
-								if(xy1 && sscanf(xy1,"%f %f",&xy1X, &xy1Y) == 2) 
-								{
-								}
-
-								xy2 = (char *) childrenTypeElement->Attribute("xy2");
-
-								if(xy2 && sscanf(xy2,"%f %f",&xy2X, &xy2Y) == 2) 
-								{
-								}
-
-
-
-
-								data.push_back((float)xy1X);
-								data.push_back((float)xy1Y);
-								data.push_back((float)xy2X);
-								data.push_back((float)xy2Y);
-
-								Rectangle *r = new Rectangle(data, cullorder, shading);
-
-								nd->addPrimitiva(r);
-
-
-							}
-
-							if (strcmp(childrenTypeElement->Value(),"triangle") == 0)
-							{
-								hasElement = true;
-								char *xyz1 = NULL, *xyz2 = NULL, *xyz3 = NULL;
-								float xyz1X, xyz1Y, xyz1Z, xyz2X, xyz2Y, xyz2Z, xyz3X, xyz3Y, xyz3Z;
-
-								xyz1 = (char *) childrenTypeElement->Attribute("xyz1");
-
-								if(xyz1 && sscanf(xyz1,"%f %f %f",&xyz1X, &xyz1Y, &xyz1Z) == 3) 
-								{
-								}
-
-								xyz2 = (char *) childrenTypeElement->Attribute("xyz2");
-
-								if(xyz2 && sscanf(xyz2,"%f %f %f",&xyz2X, &xyz2Y, &xyz2Z) == 3) 
-								{
-								}
-
-								xyz3 = (char *) childrenTypeElement->Attribute("xyz3");
-
-								if(xyz3 && sscanf(xyz3,"%f %f %f",&xyz3X, &xyz3Y, &xyz3Z) == 3) 
-								{
-								}
-
-								data.push_back(xyz1X);
-								data.push_back(xyz1Y);
-								data.push_back(xyz1Z);
-
-								data.push_back(xyz2X);
-								data.push_back(xyz2Y);
-								data.push_back(xyz2Z);
-
-								data.push_back(xyz3X);
-								data.push_back(xyz3Y);
-								data.push_back(xyz3Z);
-
-								Triangle *t = new Triangle(data, cullorder, shading);
-
-								nd->addPrimitiva(t);
-
-							}
-
-							if (strcmp(childrenTypeElement->Value(),"cylinder") == 0)
-							{
-								hasElement = true;
-
-								float base, top, height;
-								int slices, stacks;
-
-								if (childrenTypeElement->QueryFloatAttribute("base",&base) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryFloatAttribute("top",&top) == TIXML_SUCCESS)
-								{
-								}
-								else
-								{
-									cout << "Error processing the Cylinder Top value on Node " << nodeId <<",exiting!" << endl;
-									exit(1);
-								}
-
-								if (childrenTypeElement->QueryFloatAttribute("height",&height) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryIntAttribute("slices",&slices) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryIntAttribute("stacks",&stacks) == TIXML_SUCCESS)
-								{
-								}
-
-								data.push_back(base);
-								data.push_back(top);
-								data.push_back(height);
-								data.push_back((float)slices);
-								data.push_back((float)stacks);
-
-								Cylinder *c = new Cylinder(data, cullorder);
-
-								nd->addPrimitiva(c);
-							}
-
-							if (strcmp(childrenTypeElement->Value(),"sphere") == 0)
-							{
-								hasElement = true;
-
-								float radius;
-								int slices, stacks;
-
-								if (childrenTypeElement->QueryFloatAttribute("radius",&radius) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryIntAttribute("slices",&slices) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryIntAttribute("stacks",&stacks) == TIXML_SUCCESS)
-								{
-								}
-
-								data.push_back(radius);
-								data.push_back((float)slices);
-								data.push_back((float)stacks);
-
-								Sphere *s = new Sphere(data, cullorder);
-
-								nd->addPrimitiva(s);
-							}
-
-							if (strcmp(childrenTypeElement->Value(),"torus") == 0)
-							{
-								hasElement = true;
-
-								float inner, outer;
-								int slices, loops;
-
-								if (childrenTypeElement->QueryFloatAttribute("inner",&inner) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryFloatAttribute("outer",&outer) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryIntAttribute("slices",&slices) == TIXML_SUCCESS)
-								{
-								}
-
-								if (childrenTypeElement->QueryIntAttribute("loops",&loops) == TIXML_SUCCESS)
-								{
-								}
-
-								data.push_back(inner);
-								data.push_back(outer);
-								data.push_back((float)slices);
-								data.push_back((float)loops);
-
-								Torus *t = new Torus(data, cullorder);
-
-								nd->addPrimitiva(t);
-							}
-
-							if (strcmp(childrenTypeElement->Value(),"noderef") == 0)
-							{
-								hasElement = true;
-								char *id = NULL;
-
-								id = (char *) childrenTypeElement->Attribute("id");
-
-
-								//Vetor refs, contém o nome do nó na 1ª posição, e o id do noderef na 2ª
-								vector <char*> refs;
-								refs.push_back(nodeId);
-								refs.push_back(id);
-
-								//Vetor noderefs, contém todos os nodes que teem a tag noderef
-								noderefs_vec.push_back(refs);
-
-							}
-
-							if (strcmp(childrenTypeElement->Value(),"plane") == 0)
-							{
-								hasElement = true;
-
-								int parts;
-
-								if (childrenTypeElement->QueryIntAttribute("parts",&parts) == TIXML_SUCCESS)
-								{
-									Plane *p = new Plane(parts);
-									nd->addPrimitiva(p);
-								}
-							}
-
-							if(strcmp(childrenTypeElement->Value(), "patch") == 0)
-							{
-								hasElement = true;
-								int order, partsU, partsV;
-								char *compute;
-								GLfloat **points;
-
-								if (childrenTypeElement->QueryIntAttribute("order",&order) == TIXML_SUCCESS &&
-									childrenTypeElement->QueryIntAttribute("partsU",&partsU) == TIXML_SUCCESS &&
-									childrenTypeElement->QueryIntAttribute("partsV",&partsV) == TIXML_SUCCESS)
-								{
-									compute = (char *) childrenTypeElement->Attribute("compute");
-
-									Patch *p = new Patch(order, partsU, partsV, compute, cullorder);
-								
-									points = (GLfloat**)malloc(sizeof(GLfloat*) * (order+1)*(order+1));
-
-									for(int i = 0; i < (order+1)*(order+1) ; i++) points[i] = (GLfloat*)malloc(sizeof(GLfloat)*3);
-
-									TiXmlElement* ctrlElement = childrenTypeElement->FirstChildElement();
-
-									if (ctrlElement == NULL)
-									{
-										printf("Sem pontos de controlo\n");
-										exit(1);
-									}
-									else
-									{
-										int countPoints = 0;
-										while(ctrlElement)
-										{
-											if (strcmp(ctrlElement->Value(),"controlpoint") == 0)
-											{
-												float x,y,z;
-
-												if (ctrlElement->QueryFloatAttribute("x",&x) == TIXML_SUCCESS &&
-													ctrlElement->QueryFloatAttribute("y",&y) == TIXML_SUCCESS &&
-													ctrlElement->QueryFloatAttribute("z",&z) == TIXML_SUCCESS)
-												{
-													points[countPoints][0] = x;
-													points[countPoints][1] = y;
-													points[countPoints][2] = z;
-
-													countPoints++;
-													cout <<"Ponto" << endl;
-												}
-											}
-
-											ctrlElement = ctrlElement->NextSiblingElement();
-											
-										}
-										
-										for(int i = 0; i< (order+1)*(order+1);i++) p->addControPoint(points[i]);
-									}
-									nd->addPrimitiva(p);
-								}
-
-
-							}
-
-
-							if(strcmp(childrenTypeElement->Value(), "vehicle") == 0)
-							{
-								hasElement = true;
-
-								Vehicle *v = new Vehicle(cullorder);
-
-								nd->addPrimitiva(v);
-							}
-
-							if(strcmp(childrenTypeElement->Value(), "waterline") == 0)
-							{
-								hasElement = true;
-								char *bump = (char *)childrenTypeElement->Attribute("heightmap");
-								char *texture = (char *)childrenTypeElement->Attribute("texturemap");
-
-								char *fragFile = (char *)childrenTypeElement->Attribute("fragmentshader");
-
-								char *vertFile = (char *)childrenTypeElement->Attribute("vertexshader");
-
-								nd->addPrimitiva(new WaterLine(fragFile, vertFile, bump, texture));
-							}
-
-
-
-
-							childrenTypeElement = childrenTypeElement->NextSiblingElement();
-
-							if(!hasElement)
-							{
-								cout << "Children block empty on Node " << nodeId << ",exiting..." << endl;
-								exit(1);
-							}
-						}
-
-
-					}
-
-					childrenElemenent = childrenElemenent->NextSiblingElement();
-				}
-			}
-
-			i++;
-			nodeElement = nodeElement->NextSiblingElement();
-
-			graph.push_back(nd);
-		}
-	}
-
-
-	for (unsigned int i = 0; i < noderefs_vec.size(); i++)
-	{
-
-		Node* no_referenciado = findNodeById(noderefs_vec[i][0]);
-
-
-		Node* no_referencia = findNodeById(noderefs_vec[i][1]);
-
-
-		if(no_referencia == NULL)
-		{
-			cout << "No node " << noderefs_vec[i][1] << ", referenced by " << noderefs_vec[i][0] <<", found.Exiting..." << endl;
-			exit(1);
-		}
-		no_referenciado->addChild(no_referencia);
-
-
-
-	}
-
-	cout << endl << "Terminated parsing the .yaf file!" << endl ;
-
-	scene.setGraph(graph);
-
 }
-
-
-
 
 YafReader::~YafReader()
 {
